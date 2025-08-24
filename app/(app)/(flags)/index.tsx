@@ -108,7 +108,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     borderRadius: 10,
     overflow: 'hidden',
-    ...(typeof SHADOW === 'object' ? SHADOW : {}),
   },
   image: {
     aspectRatio: 1,
