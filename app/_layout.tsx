@@ -1,9 +1,17 @@
 import CTA from '@/components/buttons/large-cta';
 import { SplashScreenController } from '@/components/splash/splash-screen-controller';
 import { SessionProvider, useSession } from '@/context/authentication-context';
+import { supabase } from '@/lib/supabase';
 import { useStore } from '@/store/store';
 import { router, Stack } from 'expo-router';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useState } from 'react';
+import {
+  Alert,
+  AppState,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 
 export default function Root() {
   return (
@@ -31,10 +39,42 @@ function RootNavigator() {
   const setIsAuthLoginRoute = useStore((state) => state.setIsAuthLoginRoute);
   const formData = useStore((state) => state.formData);
 
+  AppState.addEventListener('change', (state) => {
+    if (state === 'active') {
+      supabase.auth.startAutoRefresh();
+    } else {
+      supabase.auth.stopAutoRefresh();
+    }
+  });
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  async function signInWithEmail() {
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
+    if (error) Alert.alert(error.message);
+  }
+  async function signUpWithEmail() {
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+    });
+    if (error) Alert.alert(error.message);
+    if (!session)
+      Alert.alert('Please check your inbox for email verification!');
+  }
+
   const onPress = () => {
-    console.log('formData', formData);
     if (authCTANumber === 0 && isAuthLoginRoute) {
-      login();
+      setEmail(formData.Email);
+      setPassword(formData.Password);
+      signInWithEmail();
       router.navigate('/(app)');
       resetAuthCTAVariables();
     } else if (authCTANumber === 0) {
@@ -42,13 +82,12 @@ function RootNavigator() {
       setIsAuthLoginRoute(false);
       increaseAuthCTANumber();
     } else if (authCTANumber === 1) {
+      setEmail(formData.Email);
+      setPassword(formData.Password);
+      signUpWithEmail();
       router.navigate('/sign-up/user');
       increaseAuthCTANumber();
     } else if (authCTANumber === 2) {
-      login();
-      router.navigate('/(app)');
-      resetAuthCTAVariables();
-    } else {
       login();
       router.navigate('/(app)');
       resetAuthCTAVariables();

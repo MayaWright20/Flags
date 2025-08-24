@@ -60,13 +60,6 @@ export default function SignUpScreen() {
             content={[
               {
                 formType: FORM_TYPES.TEXT_INPUT,
-                title: 'Username',
-                regex: /^[A-Za-z]{2,}$/,
-                maxLength: 15,
-                errorMessage: 'This username is taken.',
-              },
-              {
-                formType: FORM_TYPES.TEXT_INPUT,
                 title: 'Email',
                 maxLength: 25,
                 keyboardType: 'email-address',
