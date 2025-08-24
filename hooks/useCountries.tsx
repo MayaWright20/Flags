@@ -6,6 +6,7 @@ export default function useCountries() {
   const [loading, setLoading] = useState(false);
 
   const fetchPost = async () => {
+    setLoading(true);
     try {
       const response = await axios.get(
         'https://restcountries.com/v3.1/all?fields=name'
