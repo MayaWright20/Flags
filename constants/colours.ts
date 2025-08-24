@@ -1,0 +1,18 @@
+export const COLOURS = {
+  lightGrey: '#e8e6e0',
+  mediumGrey: '#a8a196',
+  darkGrey: '#6b6358',
+  white: '#fefefe',
+  lightYellow: '#fbfbfb',
+  blue: '#87ceeb',
+  lightGreen: '#9ff8bd',
+  yellow: '#ffe601',
+  orange: '#ff8c42',
+  darkOrange: '#e67e22',
+  purple: '#9659c4',
+  green: '#2d5016',
+  pink: '#f8a5c2',
+  red: '#f75555',
+  pinkActive: '#ff69b4',
+  black: '#2c2c2c',
+};
