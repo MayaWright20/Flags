@@ -10,14 +10,20 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 
 export default function FlagsScreen() {
   const { allCountries, loading } = useCountries();
+  const [search, setSearch] = React.useState('');
 
-  // Sort countries alphabetically
   const sortedCountries =
     allCountries
       ?.slice()
       .sort((a, b) => a.name.common.localeCompare(b.name.common)) || [];
 
-  // Helper to get first letter
+  // Filter countries by search input
+  const filteredCountries = search
+    ? sortedCountries.filter((country) =>
+        country.name.common.toLowerCase().includes(search.toLowerCase())
+      )
+    : sortedCountries;
+
   const getFirstLetter = (name: string) => {
     name.charAt(0).toUpperCase();
     if (
@@ -33,7 +39,9 @@ export default function FlagsScreen() {
   const renderItem = ({ item, index }: { item: any; index: number }) => {
     const currentLetter = getFirstLetter(item.name.common);
     const prevLetter =
-      index > 0 ? getFirstLetter(sortedCountries[index - 1].name.common) : null;
+      index > 0
+        ? getFirstLetter(filteredCountries[index - 1].name.common)
+        : null;
     const showLetter = index === 0 || currentLetter !== prevLetter;
     return (
       <React.Fragment>
@@ -65,10 +73,14 @@ export default function FlagsScreen() {
 
   return (
     <View style={styles.page}>
-      <SearchBar style={styles.search} onPress={() => {}} />
+      <SearchBar
+        style={styles.search}
+        value={search}
+        onChangeText={setSearch}
+      />
       <FlashList
         contentContainerStyle={styles.container}
-        data={sortedCountries}
+        data={filteredCountries}
         estimatedItemSize={50}
         renderItem={renderItem}
       />

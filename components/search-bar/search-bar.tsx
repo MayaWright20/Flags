@@ -10,20 +10,26 @@ import {
 
 export default function SearchBar({
   style,
+  value,
+  onChangeText,
   onPress,
 }: {
   style?: StyleProp<ViewStyle>;
-  onPress: () => void;
+  value: string;
+  onChangeText: (text: string) => void;
+  onPress?: () => void;
 }) {
   return (
     <Pressable
-      onPress={() => onPress()}
+      onPress={onPress}
       style={[styles.container, style, { ...SHADOW }]}
     >
       <TextInput
         style={{ ...FONTS_VARIANTS.LARGE_CTA }}
         placeholder="Search"
-        onPressIn={() => onPress()}
+        value={value}
+        onChangeText={onChangeText}
+        onPressIn={onPress}
       />
     </Pressable>
   );
