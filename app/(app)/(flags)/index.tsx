@@ -9,7 +9,7 @@ import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 export default function FlagsScreen() {
-  const { allCountries, loading } = useCountries();
+  const { allCountries } = useCountries();
   const [search, setSearch] = React.useState('');
 
   const sortedCountries =
@@ -17,7 +17,6 @@ export default function FlagsScreen() {
       ?.slice()
       .sort((a, b) => a.name.common.localeCompare(b.name.common)) || [];
 
-  // Filter countries by search input
   const filteredCountries = search
     ? sortedCountries.filter((country) =>
         country.name.common.toLowerCase().includes(search.toLowerCase())
