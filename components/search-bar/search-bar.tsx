@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     marginBlock: 10,
     borderWidth: 1,
     borderColor: COLOURS.lightGrey,
-    backgroundColor: COLOURS.lightYellow,
     alignSelf: 'center',
+    backgroundColor: 'white',
   },
 });

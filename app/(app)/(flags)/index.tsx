@@ -1,5 +1,7 @@
+import SearchBar from '@/components/search-bar/search-bar';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { COLOURS } from '@/constants/colours';
+import { SHADOW } from '@/constants/styles';
 import useCountries from '@/hooks/useCountries';
 import { countries } from '@/lib/country-codes';
 import { FlashList } from '@shopify/flash-list';
@@ -8,23 +10,45 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 
 export default function FlagsScreen() {
   const { allCountries, loading } = useCountries();
-  return (
-    <FlashList
-      contentContainerStyle={styles.container}
-      data={allCountries
-        ?.slice()
-        .sort((a, b) => a.name.common.localeCompare(b.name.common))}
-      estimatedItemSize={40}
-      renderItem={({ item }: { item: any }) => (
+
+  // Sort countries alphabetically
+  const sortedCountries =
+    allCountries
+      ?.slice()
+      .sort((a, b) => a.name.common.localeCompare(b.name.common)) || [];
+
+  // Helper to get first letter
+  const getFirstLetter = (name: string) => {
+    name.charAt(0).toUpperCase();
+    if (
+      name.charAt(0).toUpperCase() === 'Å' ||
+      name.charAt(0).toUpperCase() === 'A'
+    ) {
+      return 'A';
+    } else {
+      return name.charAt(0).toUpperCase();
+    }
+  };
+
+  const renderItem = ({ item, index }: { item: any; index: number }) => {
+    const currentLetter = getFirstLetter(item.name.common);
+    const prevLetter =
+      index > 0 ? getFirstLetter(sortedCountries[index - 1].name.common) : null;
+    const showLetter = index === 0 || currentLetter !== prevLetter;
+    return (
+      <React.Fragment>
+        {showLetter && <Text style={styles.letterHeader}>{currentLetter}</Text>}
         <View style={styles.item}>
-          <Image
-            source={{
-              uri: `https://flagcdn.com/w2560/${
-                countries[item['name']['common']]
-              }.png`,
-            }}
-            style={styles.image}
-          />
+          <View style={styles.imageWrapper}>
+            <Image
+              source={{
+                uri: `https://flagcdn.com/w2560/${
+                  countries[item['name']['common']]
+                }.png`,
+              }}
+              style={styles.image}
+            />
+          </View>
           <View style={styles.wrapper}>
             <IconSymbol
               style={styles.icon}
@@ -35,12 +59,28 @@ export default function FlagsScreen() {
             <Text style={styles.title}>{item['name']['common']}</Text>
           </View>
         </View>
-      )}
-    />
+      </React.Fragment>
+    );
+  };
+
+  return (
+    <View style={styles.page}>
+      <SearchBar style={styles.search} onPress={() => {}} />
+      <FlashList
+        contentContainerStyle={styles.container}
+        data={sortedCountries}
+        estimatedItemSize={50}
+        renderItem={renderItem}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  page: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
   container: {
     flex: 1,
     alignItems: 'center',
@@ -57,12 +97,16 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     borderRadius: 10,
     overflow: 'hidden',
+    ...(typeof SHADOW === 'object' ? SHADOW : {}),
   },
   image: {
-    width: '25%',
     aspectRatio: 1,
     objectFit: 'cover',
     borderRadius: 10,
+  },
+  imageWrapper: {
+    width: '25%',
+    ...(typeof SHADOW === 'object' ? SHADOW : {}),
   },
   wrapper: {
     flex: 1,
@@ -76,5 +120,17 @@ const styles = StyleSheet.create({
   icon: {
     alignSelf: 'flex-end',
     margin: 7,
+  },
+  letterHeader: {
+    fontWeight: 'bold',
+    fontSize: 28,
+    marginTop: 15,
+    marginBottom: 5,
+    alignSelf: 'flex-start',
+    color: COLOURS.darkGrey,
+    marginLeft: 10,
+  },
+  search: {
+    width: '95%',
   },
 });
