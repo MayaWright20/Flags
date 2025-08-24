@@ -3,7 +3,7 @@ import { COLOURS } from '@/constants/colours';
 import { SHADOW } from '@/constants/styles';
 import useCountries from '@/hooks/useCountries';
 import { countries } from '@/lib/country-codes';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   Image,
   SafeAreaView,
@@ -13,70 +13,133 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import ConfettiCannon from 'react-native-confetti-cannon';
 
 export default function HomeScreen() {
   const { allCountries } = useCountries();
+  const explosion = useRef(null);
   const [randomInts, setRadomInts] = useState([0, 10, 130, 112]);
   const [correctAnswerInt, setCorrectAnswerInt] = useState(
     Math.floor(Math.random() * 4)
   );
+  const [isShowAnswer, setIsShowAnswer] = useState(false);
+  const [itemPressed, setItemPressed] = useState<null | number>(null);
 
-  console.log('correctAnswer', correctAnswerInt);
+  const onPress = (isCorrect: boolean, itemPress?: number) => {
+    if (itemPress !== null && itemPress) {
+      setItemPressed(itemPress);
+    }
+    if (explosion && explosion.current && isCorrect) {
+      explosion.current.start();
+    }
+    setIsShowAnswer(true);
+  };
+
+  const nextQuestionHandler = () => {
+    setItemPressed(null);
+    if (allCountries) {
+      setRadomInts([
+        Math.floor(Math.random() * allCountries.length),
+        Math.floor(Math.random() * allCountries.length),
+        Math.floor(Math.random() * allCountries.length),
+        Math.floor(Math.random() * allCountries.length),
+      ]);
+    }
+    setCorrectAnswerInt(Math.floor(Math.random() * 4));
+    setIsShowAnswer(false);
+  };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollview}>
-      <SafeAreaView style={styles.container}>
-        {allCountries && (
-          <View style={styles.imageWrapper}>
-            <IconSymbol
-              style={styles.icon}
-              size={35}
-              name="heart"
-              color={'red'}
-            />
-            <Image
-              source={{
-                uri: `https://flagcdn.com/w2560/${
-                  countries[
-                    allCountries[randomInts[correctAnswerInt]]['name']['common']
-                  ]
-                }.png`,
-              }}
-              style={styles.image}
-            />
+    <>
+      <ScrollView contentContainerStyle={styles.scrollview}>
+        <SafeAreaView style={styles.container}>
+          {allCountries && (
+            <View style={styles.imageWrapper}>
+              <IconSymbol
+                style={styles.icon}
+                size={35}
+                name="heart"
+                color={'red'}
+              />
+              <Image
+                source={{
+                  uri: `https://flagcdn.com/w2560/${
+                    countries[
+                      allCountries[randomInts[correctAnswerInt]]['name'][
+                        'common'
+                      ]
+                    ]
+                  }.png`,
+                }}
+                style={styles.image}
+              />
+            </View>
+          )}
+          <View style={styles.itemsWrapper}>
+            {allCountries &&
+              randomInts.map((item, index) => {
+                if (index === correctAnswerInt) {
+                  return (
+                    <TouchableOpacity
+                      key={index}
+                      style={styles.item}
+                      disabled={isShowAnswer}
+                      onPress={() => onPress(true)}
+                    >
+                      <Text
+                        style={[
+                          styles.title,
+                          { color: isShowAnswer ? COLOURS.green : 'black' },
+                        ]}
+                      >
+                        {
+                          allCountries[randomInts[correctAnswerInt]]['name'][
+                            'common'
+                          ]
+                        }
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                } else {
+                  return (
+                    <TouchableOpacity
+                      style={styles.item}
+                      key={index}
+                      disabled={isShowAnswer}
+                      onPress={() => onPress(false, index)}
+                    >
+                      <Text
+                        style={[
+                          styles.title,
+                          { color: itemPressed === index ? 'red' : 'black' },
+                        ]}
+                      >
+                        {allCountries[randomInts[index]]['name']['common']}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                }
+              })}
+            <TouchableOpacity
+              disabled={!isShowAnswer}
+              style={[
+                styles.button,
+                { backgroundColor: isShowAnswer ? 'black' : 'grey' },
+              ]}
+              onPress={nextQuestionHandler}
+            >
+              <Text style={[styles.title, styles.buttonText]}>Continue</Text>
+            </TouchableOpacity>
           </View>
-        )}
-        <View style={styles.itemsWrapper}>
-          {allCountries &&
-            randomInts.map((item, index) => {
-              if (index === correctAnswerInt) {
-                return (
-                  <TouchableOpacity key={index} style={styles.item}>
-                    <Text style={styles.title}>
-                      {
-                        allCountries[randomInts[correctAnswerInt]]['name'][
-                          'common'
-                        ]
-                      }
-                    </Text>
-                  </TouchableOpacity>
-                );
-              } else {
-                return (
-                  <TouchableOpacity style={styles.item} key={index}>
-                    <Text style={styles.title}>
-                      {allCountries[randomInts[index]]['name']['common']}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              }
-            })}
-          <TouchableOpacity style={styles.button}>
-            <Text style={[styles.title, styles.buttonText]}>Continue</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    </ScrollView>
+        </SafeAreaView>
+      </ScrollView>
+      <ConfettiCannon
+        autoStart={false}
+        ref={explosion}
+        count={200}
+        origin={{ x: -10, y: 0 }}
+      />
+    </>
   );
 }
 
