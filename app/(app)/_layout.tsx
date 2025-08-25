@@ -24,8 +24,12 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house" color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <IconSymbol
+              size={28}
+              name={focused ? 'house.fill' : 'house'}
+              color={color}
+            />
           ),
           headerShown: false,
         }}
@@ -34,8 +38,12 @@ export default function TabLayout() {
         name="(flags)"
         options={{
           title: 'World flags',
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="flag" color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <IconSymbol
+              size={28}
+              name={focused ? 'flag.fill' : 'flag'}
+              color={color}
+            />
           ),
         }}
       />
@@ -43,8 +51,12 @@ export default function TabLayout() {
         name="(favourites)"
         options={{
           title: 'Favourites',
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="heart" color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <IconSymbol
+              size={28}
+              name={focused ? 'heart.fill' : 'heart'}
+              color={focused ? 'red' : color}
+            />
           ),
         }}
       />
@@ -52,8 +64,12 @@ export default function TabLayout() {
         name="(profile)"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="person" color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <IconSymbol
+              size={28}
+              name={focused ? 'person.fill' : 'person'}
+              color={color}
+            />
           ),
         }}
       />

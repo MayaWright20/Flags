@@ -82,6 +82,12 @@ export default function FlagsScreen() {
         data={filteredCountries}
         estimatedItemSize={50}
         renderItem={renderItem}
+        ListFooterComponent={
+          <Image
+            source={require('@/assets/images/capes.png')}
+            style={{ width: '100%', height: 300 }}
+          />
+        }
       />
     </View>
   );
@@ -111,8 +117,8 @@ const styles = StyleSheet.create({
   },
   image: {
     aspectRatio: 1,
-    objectFit: 'cover',
-    borderRadius: 10,
+    objectFit: 'contain',
+    marginLeft: 10,
   },
   imageWrapper: {
     width: '25%',
@@ -126,6 +132,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     fontSize: 20,
     paddingRight: 5,
+    marginTop: -5,
   },
   icon: {
     alignSelf: 'flex-end',

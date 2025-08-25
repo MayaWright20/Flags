@@ -25,8 +25,8 @@ export default function FavouritesScreen() {
       )}
       {favourites.length > 0 && (
         <Image
-          source={require('@/assets/images/no_favourites.png')}
-          style={{ width: '100%', height: 200 }}
+          source={require('@/assets/images/happy_heart.png')}
+          style={{ width: '100%', height: 300 }}
         />
       )}
     </SafeAreaView>

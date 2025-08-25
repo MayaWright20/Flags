@@ -100,10 +100,6 @@ function RootNavigator() {
     }
   });
 
-  // useEffect(() => {
-  //   if (session) getProfile();
-  // }, [session]);
-
   async function getProfile() {
     try {
       if (!session?.user) throw new Error('No user on the session!');
