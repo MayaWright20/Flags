@@ -61,7 +61,6 @@ export default function SignUpScreen() {
               {
                 formType: FORM_TYPES.TEXT_INPUT,
                 title: 'Email',
-                maxLength: 25,
                 keyboardType: 'email-address',
                 errorMessage: 'This email address is taken.',
               },

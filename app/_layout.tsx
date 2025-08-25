@@ -1,5 +1,6 @@
 import CTA from '@/components/buttons/large-cta';
 import { SplashScreenController } from '@/components/splash/splash-screen-controller';
+import useProfile from '@/hooks/useProfile';
 import useSession from '@/hooks/useSession';
 
 import { supabase } from '@/lib/supabase';
@@ -30,6 +31,8 @@ export default function Root() {
 function RootNavigator() {
   const { session } = useSession();
   const { height } = useWindowDimensions();
+  const { getProfile } = useProfile();
+
   const url = Linking.useURL();
 
   const isAuthCTADisabled = useStore((state) => state.isAuthCTADisabled);
@@ -47,9 +50,6 @@ function RootNavigator() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
 
   WebBrowser.maybeCompleteAuthSession();
 
@@ -93,49 +93,6 @@ function RootNavigator() {
     handleOpenMailApp();
   };
 
-  async function getProfile() {
-    try {
-      const { data, error, status } = await supabase
-        .from('profiles')
-        .select(`first_name, last_name, avatar_url`)
-        .eq('id', session?.user.id)
-        .single();
-      if (error && status !== 406) {
-        throw error;
-      }
-      if (data) {
-        setLastName(data.last_name);
-        setFirstName(data.first_name);
-        setAvatarUrl(data.avatar_url);
-      }
-    } catch {}
-  }
-
-  async function updateProfile({
-    first_name,
-    last_name,
-    avatar_url,
-  }: {
-    first_name: string;
-    last_name: string;
-    avatar_url: string;
-  }) {
-    try {
-      const updates = {
-        id: session?.user.id,
-        first_name,
-        last_name,
-        avatar_url,
-        updated_at: new Date(),
-      };
-      const { error } = await supabase.from('profiles').upsert(updates);
-      if (error) {
-        throw error;
-      }
-    } finally {
-    }
-  }
-
   async function signInWithEmail() {
     const { error } = await supabase.auth.signInWithPassword({
       email: email,
@@ -143,6 +100,7 @@ function RootNavigator() {
     });
     if (error) Alert.alert(error.message);
   }
+
   async function signUpWithEmail() {
     const {
       data: { session },
@@ -182,19 +140,8 @@ function RootNavigator() {
       setPassword(formData.Password);
       signUpWithEmail();
 
-      router.navigate('/sign-up/user');
-      increaseAuthCTANumber();
-    } else if (authCTANumber === 2) {
       if (session) {
         getProfile();
-        setFirstName(formData.first_name);
-        setLastName(formData.last_name);
-        setAvatarUrl(formData.avatar_url);
-        updateProfile({
-          first_name: firstName,
-          last_name: lastName,
-          avatar_url: avatarUrl,
-        });
         router.navigate('/(app)');
         resetAuthCTAVariables();
       }

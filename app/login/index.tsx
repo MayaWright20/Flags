@@ -56,7 +56,6 @@ export default function LoginScreen() {
               {
                 formType: FORM_TYPES.TEXT_INPUT,
                 title: 'Email',
-                maxLength: 25,
                 keybordType: 'email-address',
                 regex: /^[A-Za-z]{3,}$/,
               },

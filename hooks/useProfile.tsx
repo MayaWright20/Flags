@@ -60,5 +60,6 @@ export default function useProfile() {
   return {
     favourites,
     setFavourites: setAsFavourite,
+    getProfile,
   };
 }
