@@ -4,11 +4,93 @@ import { COLOURS } from '@/constants/colours';
 import { SHADOW } from '@/constants/styles';
 import useCountries from '@/hooks/useCountries';
 import { countries } from '@/lib/country-codes';
+import { supabase } from '@/lib/supabase';
 import { FlashList } from '@shopify/flash-list';
-import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Session } from '@supabase/supabase-js';
+import React, { useEffect, useState } from 'react';
+import {
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 export default function FlagsScreen() {
+  const [session, setSession] = useState<Session | null>(null);
+  const [favourites, setFavourites] = useState<string[]>([]);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+  }, []);
+
+  useEffect(() => {
+    getProfile();
+  }, [session, favourites]);
+
+  async function getProfile() {
+    try {
+      const { data, error, status } = await supabase
+        .from('profiles')
+        .select(`favourites`)
+        .eq('id', session?.user.id)
+        .single();
+      if (error && status !== 406) {
+        throw error;
+      }
+      if (data) {
+        setFavourites(data.favourites);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        Alert.alert(error.message);
+      }
+    }
+  }
+
+  async function updateProfile({ favourites }: { favourites?: string[] | [] }) {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+    try {
+      if (!session?.user) throw new Error('No user on the session!');
+      const updates = {
+        id: session?.user.id,
+        favourites,
+      };
+      const { error } = await supabase.from('profiles').upsert(updates);
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        Alert.alert(error.message);
+      }
+    } finally {
+    }
+  }
+
+  const setAsFavourite = (item: string) => {
+    if (favourites.includes(item)) {
+      const updated = favourites.filter((fav) => fav !== item);
+      setFavourites(updated);
+      updateProfile({ favourites: updated });
+    } else {
+      const updated = [...favourites, item];
+      setFavourites(updated);
+      updateProfile({ favourites: updated });
+    }
+  };
+
   const { allCountries } = useCountries();
   const [search, setSearch] = React.useState('');
 
@@ -57,12 +139,21 @@ export default function FlagsScreen() {
             />
           </View>
           <View style={styles.wrapper}>
-            <IconSymbol
-              style={styles.icon}
-              size={28}
-              name="heart"
-              color={'red'}
-            />
+            <TouchableOpacity
+              onPress={() => setAsFavourite(item['name']['common'])}
+            >
+              <IconSymbol
+                style={styles.icon}
+                size={28}
+                name={
+                  favourites.includes(item['name']['common'])
+                    ? 'heart.fill'
+                    : 'heart'
+                }
+                color={'red'}
+              />
+            </TouchableOpacity>
+
             <Text style={styles.title}>{item['name']['common']}</Text>
           </View>
         </View>
@@ -85,7 +176,7 @@ export default function FlagsScreen() {
         ListFooterComponent={
           <Image
             source={require('@/assets/images/capes.png')}
-            style={{ width: '100%', height: 300 }}
+            style={{ width: '100%', height: 300, marginBottom: 150 }}
           />
         }
       />
@@ -99,10 +190,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   container: {
-    flex: 1,
-    alignItems: 'center',
-    paddingBottom: 150,
-    alignSelf: 'center',
+    backgroundColor: '#fff',
   },
   item: {
     flexDirection: 'row',

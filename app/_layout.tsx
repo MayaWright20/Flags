@@ -203,10 +203,8 @@ function RootNavigator() {
 
       router.navigate('/sign-up/user');
       increaseAuthCTANumber();
-      console.log('in authCTA number === 1');
     } else if (authCTANumber === 2) {
       if (session) {
-        console.log('in authCTA number === 2');
         getProfile();
         setFirstName(formData.first_name);
         setLastName(formData.last_name);
@@ -217,7 +215,6 @@ function RootNavigator() {
           avatar_url: avatarUrl,
         });
         router.navigate('/(app)');
-        console.log('in authCTA number === 3');
         resetAuthCTAVariables();
       }
     }
