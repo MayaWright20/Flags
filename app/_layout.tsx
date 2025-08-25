@@ -109,8 +109,9 @@ function RootNavigator() {
       password: password,
     });
     if (!session) {
-      Alert.alert('Please check your inbox for email verification!');
+      // Alert.alert('Please check your inbox for email verification!');
       sendMagicLink();
+      handleOpenMailApp();
     }
   }
 
