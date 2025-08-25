@@ -38,7 +38,7 @@ function RootNavigator() {
     });
   }, []);
 
-  WebBrowser.maybeCompleteAuthSession(); // required for web only
+  WebBrowser.maybeCompleteAuthSession();
   const redirectTo = makeRedirectUri({
     scheme: 'com.flagsmaya',
     preferLocalhost: true,

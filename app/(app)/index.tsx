@@ -3,6 +3,7 @@ import { COLOURS } from '@/constants/colours';
 import { SHADOW } from '@/constants/styles';
 import useCountries from '@/hooks/useCountries';
 import { countries } from '@/lib/country-codes';
+import * as Haptics from 'expo-haptics';
 import { useRef, useState } from 'react';
 import {
   Image,
@@ -27,9 +28,11 @@ export default function HomeScreen() {
 
   const onPress = (isCorrect: boolean, itemPress?: number) => {
     if (itemPress !== null && itemPress !== undefined) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
       setItemPressed(itemPress);
     }
     if (explosion && explosion.current && isCorrect) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       explosion.current.start();
     }
     setIsShowAnswer(true);
@@ -50,7 +53,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <>
+    <View style={styles.page}>
       <ScrollView contentContainerStyle={styles.scrollview}>
         <SafeAreaView style={styles.container}>
           {allCountries && (
@@ -139,11 +142,14 @@ export default function HomeScreen() {
         count={200}
         origin={{ x: -10, y: 0 }}
       />
-    </>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  page: {
+    flex: 1,
+  },
   container: {
     flex: 1,
   },
@@ -162,9 +168,11 @@ const styles = StyleSheet.create({
   image: {
     borderRadius: 15,
     flex: 1,
-    width: '95%',
-    height: '90%',
+    width: '100%',
+    height: 'auto',
     alignSelf: 'center',
+    objectFit: 'contain',
+    ...SHADOW,
   },
   icon: {
     alignSelf: 'flex-end',
