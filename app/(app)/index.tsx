@@ -1,4 +1,4 @@
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import FavouriteIcon from '@/components/buttons/favourite-icon';
 import { COLOURS } from '@/constants/colours';
 import { SHADOW } from '@/constants/styles';
 import useCountries from '@/hooks/useCountries';
@@ -26,6 +26,8 @@ export default function HomeScreen() {
   const [isShowAnswer, setIsShowAnswer] = useState(false);
   const [itemPressed, setItemPressed] = useState<null | number>(null);
 
+  let correctAnswer = '';
+
   const onPress = (isCorrect: boolean, itemPress?: number) => {
     if (itemPress !== null && itemPress !== undefined) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
@@ -52,30 +54,32 @@ export default function HomeScreen() {
     setIsShowAnswer(false);
   };
 
+  if (allCountries) {
+    correctAnswer =
+      allCountries[randomInts[correctAnswerInt]]['name']['common'];
+  }
+
   return (
     <View style={styles.page}>
       <ScrollView contentContainerStyle={styles.scrollview}>
         <SafeAreaView style={styles.container}>
           {allCountries && (
             <View style={styles.imageWrapper}>
-              <IconSymbol
-                style={styles.icon}
-                size={35}
-                name="heart"
-                color={'red'}
-              />
-              <Image
-                source={{
-                  uri: `https://flagcdn.com/w2560/${
-                    countries[
-                      allCountries[randomInts[correctAnswerInt]]['name'][
-                        'common'
-                      ]
-                    ]
-                  }.png`,
-                }}
-                style={styles.image}
-              />
+              {correctAnswer && (
+                <>
+                  <FavouriteIcon
+                    size={35}
+                    favouritedItem={correctAnswer}
+                    styles={styles.icon}
+                  />
+                  <Image
+                    source={{
+                      uri: `https://flagcdn.com/w2560/${countries[correctAnswer]}.png`,
+                    }}
+                    style={styles.image}
+                  />
+                </>
+              )}
             </View>
           )}
           <View style={styles.itemsWrapper}>
@@ -95,11 +99,7 @@ export default function HomeScreen() {
                           { color: isShowAnswer ? COLOURS.green : 'black' },
                         ]}
                       >
-                        {
-                          allCountries[randomInts[correctAnswerInt]]['name'][
-                            'common'
-                          ]
-                        }
+                        {correctAnswer}
                       </Text>
                     </TouchableOpacity>
                   );

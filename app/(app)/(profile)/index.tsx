@@ -1,6 +1,7 @@
+import CTA from '@/components/buttons/large-cta';
 import { supabase } from '@/lib/supabase';
 import { useStore } from '@/store/store';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 
 export default function ProfileScreen() {
   // Settings - search by guesss by flag/ name
@@ -11,17 +12,18 @@ export default function ProfileScreen() {
   const resetAuthCTAVariables = useStore(
     (state) => state.resetAuthCTAVariables
   );
+
+  const signOutHandler = () => {
+    resetAuthCTAVariables();
+    supabase.auth.signOut();
+  };
   return (
     <View style={styles.page}>
-      <Text
-        onPress={() => {
-          resetAuthCTAVariables();
-          supabase.auth.signOut();
-        }}
-      >
-        {' '}
-        Profile Sign Out
-      </Text>
+      <Image
+        source={require('@/assets/images/laying.png')}
+        style={{ width: '100%', height: 200, marginBottom: 150 }}
+      />
+      <CTA title={'Sign out'} onPress={signOutHandler} />
     </View>
   );
 }
@@ -29,6 +31,8 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   page: {
     flex: 1,
+    alignItems: 'center',
     backgroundColor: 'white',
+    marginHorizontal: 5,
   },
 });

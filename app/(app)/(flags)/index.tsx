@@ -1,97 +1,16 @@
+import FavouriteIcon from '@/components/buttons/favourite-icon';
 import SearchBar from '@/components/search-bar/search-bar';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import { COLOURS } from '@/constants/colours';
 import { SHADOW } from '@/constants/styles';
 import useCountries from '@/hooks/useCountries';
 import { countries } from '@/lib/country-codes';
-import { supabase } from '@/lib/supabase';
 import { FlashList } from '@shopify/flash-list';
-import { Session } from '@supabase/supabase-js';
-import React, { useEffect, useState } from 'react';
-import {
-  Alert,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import React from 'react';
+import { Image, StyleSheet, Text, View } from 'react-native';
 
 export default function FlagsScreen() {
-  const [session, setSession] = useState<Session | null>(null);
-  const [favourites, setFavourites] = useState<string[]>([]);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-  }, []);
-
-  useEffect(() => {
-    getProfile();
-  }, [session, favourites]);
-
-  async function getProfile() {
-    try {
-      const { data, error, status } = await supabase
-        .from('profiles')
-        .select(`favourites`)
-        .eq('id', session?.user.id)
-        .single();
-      if (error && status !== 406) {
-        throw error;
-      }
-      if (data) {
-        setFavourites(data.favourites);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        Alert.alert(error.message);
-      }
-    }
-  }
-
-  async function updateProfile({ favourites }: { favourites?: string[] | [] }) {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-    try {
-      if (!session?.user) throw new Error('No user on the session!');
-      const updates = {
-        id: session?.user.id,
-        favourites,
-      };
-      const { error } = await supabase.from('profiles').upsert(updates);
-      if (error) {
-        throw error;
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        Alert.alert(error.message);
-      }
-    } finally {
-    }
-  }
-
-  const setAsFavourite = (item: string) => {
-    if (favourites.includes(item)) {
-      const updated = favourites.filter((fav) => fav !== item);
-      setFavourites(updated);
-      updateProfile({ favourites: updated });
-    } else {
-      const updated = [...favourites, item];
-      setFavourites(updated);
-      updateProfile({ favourites: updated });
-    }
-  };
-
   const { allCountries } = useCountries();
+
   const [search, setSearch] = React.useState('');
 
   const sortedCountries =
@@ -124,6 +43,7 @@ export default function FlagsScreen() {
         ? getFirstLetter(filteredCountries[index - 1].name.common)
         : null;
     const showLetter = index === 0 || currentLetter !== prevLetter;
+    const countryName = item['name']['common'];
     return (
       <React.Fragment>
         {showLetter && <Text style={styles.letterHeader}>{currentLetter}</Text>}
@@ -131,30 +51,18 @@ export default function FlagsScreen() {
           <View style={styles.imageWrapper}>
             <Image
               source={{
-                uri: `https://flagcdn.com/w2560/${
-                  countries[item['name']['common']]
-                }.png`,
+                uri: `https://flagcdn.com/w2560/${countries[countryName]}.png`,
               }}
               style={styles.image}
             />
           </View>
           <View style={styles.wrapper}>
-            <TouchableOpacity
-              onPress={() => setAsFavourite(item['name']['common'])}
-            >
-              <IconSymbol
-                style={styles.icon}
-                size={28}
-                name={
-                  favourites.includes(item['name']['common'])
-                    ? 'heart.fill'
-                    : 'heart'
-                }
-                color={'red'}
-              />
-            </TouchableOpacity>
-
-            <Text style={styles.title}>{item['name']['common']}</Text>
+            <FavouriteIcon
+              size={35}
+              favouritedItem={countryName}
+              styles={styles.icon}
+            />
+            <Text style={styles.title}>{countryName}</Text>
           </View>
         </View>
       </React.Fragment>
