@@ -59,7 +59,7 @@ export default function UserScreen() {
             color={COLOURS.blue}
             content={[
               {
-                title: 'Profile picture',
+                title: 'avatar_url',
                 maxLength: 20,
                 keyboardType: '',
                 errorMessages: {},
@@ -67,7 +67,7 @@ export default function UserScreen() {
                 regex: /^.{12,}$/,
               },
               {
-                title: 'First name',
+                title: 'first_name',
                 maxLength: 20,
                 keyboardType: '',
                 errorMessages: {},
@@ -75,7 +75,7 @@ export default function UserScreen() {
                 regex: /^.{12,}$/,
               },
               {
-                title: 'Last name',
+                title: 'last_name',
                 maxLength: 20,
                 keyboardType: '',
                 errorMessages: {},

@@ -1,9 +1,14 @@
 import CTA from '@/components/buttons/large-cta';
 import { SplashScreenController } from '@/components/splash/splash-screen-controller';
-import { SessionProvider, useSession } from '@/context/authentication-context';
+import { SessionProvider } from '@/context/authentication-context';
 import { supabase } from '@/lib/supabase';
 import { useStore } from '@/store/store';
+import { Session } from '@supabase/supabase-js';
+import { makeRedirectUri } from 'expo-auth-session';
+import * as QueryParams from 'expo-auth-session/build/QueryParams';
+import * as Linking from 'expo-linking';
 import { router, Stack } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import { useState } from 'react';
 import {
   Alert,
@@ -13,19 +18,47 @@ import {
   View,
 } from 'react-native';
 
-export default function Root() {
+export default function Root({ session }: { session: Session }) {
   return (
     <SessionProvider>
       <SplashScreenController />
-      <RootNavigator />
+      <RootNavigator session={session} />
     </SessionProvider>
   );
 }
 
-function RootNavigator() {
-  const { session, login } = useSession();
-  const { height } = useWindowDimensions();
+function RootNavigator({ session }: { session: Session }) {
+  WebBrowser.maybeCompleteAuthSession(); // required for web only
+  const redirectTo = makeRedirectUri();
+  const createSessionFromUrl = async (url: string) => {
+    const { params, errorCode } = QueryParams.getQueryParams(url);
+    if (errorCode) throw new Error(errorCode);
+    const { access_token, refresh_token } = params;
+    if (!access_token) return;
+    const { data, error } = await supabase.auth.setSession({
+      access_token,
+      refresh_token,
+    });
+    if (error) throw error;
+    return data.session;
+  };
 
+  const sendMagicLink = async () => {
+    const { error } = await supabase.auth.signInWithOtp({
+      email: 'valid.email@supabase.io',
+      options: {
+        emailRedirectTo: redirectTo,
+      },
+    });
+
+    if (error) {
+      throw error;
+    }
+    handleOpenMailApp();
+  };
+  // const { session, login } = useSession();
+  const { height } = useWindowDimensions();
+  const url = Linking.useURL();
   const isAuthCTADisabled = useStore((state) => state.isAuthCTADisabled);
   const authCTANumber = useStore((state) => state.authCTANumber);
   const authCTATitle = useStore((state) => state.authCTATitle);
@@ -39,6 +72,12 @@ function RootNavigator() {
   const setIsAuthLoginRoute = useStore((state) => state.setIsAuthLoginRoute);
   const formData = useStore((state) => state.formData);
 
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+
   AppState.addEventListener('change', (state) => {
     if (state === 'active') {
       supabase.auth.startAutoRefresh();
@@ -47,8 +86,62 @@ function RootNavigator() {
     }
   });
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // useEffect(() => {
+  //   if (session) getProfile();
+  // }, [session]);
+
+  async function getProfile() {
+    try {
+      if (!session?.user) throw new Error('No user on the session!');
+      const { data, error, status } = await supabase
+        .from('profiles')
+        .select(`first_name, last_name, avatar_url`)
+        .eq('id', session?.user.id)
+        .single();
+      if (error && status !== 406) {
+        throw error;
+      }
+      if (data) {
+        setLastName(data.last_name);
+        setFirstName(data.first_name);
+        setAvatarUrl(data.avatar_url);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        Alert.alert(error.message);
+      }
+    }
+  }
+
+  async function updateProfile({
+    first_name,
+    last_name,
+    avatar_url,
+  }: {
+    first_name: string;
+    last_name: string;
+    avatar_url: string;
+  }) {
+    try {
+      if (!session?.user) throw new Error('No user on the session!');
+      const updates = {
+        id: session?.user.id,
+        first_name,
+        last_name,
+        avatar_url,
+        updated_at: new Date(),
+      };
+      const { error } = await supabase.from('profiles').upsert(updates);
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        Alert.alert(error.message);
+      }
+    } finally {
+    }
+  }
 
   async function signInWithEmail() {
     const { error } = await supabase.auth.signInWithPassword({
@@ -66,11 +159,23 @@ function RootNavigator() {
       password: password,
     });
     if (error) Alert.alert(error.message);
-    if (!session)
+    if (!session) {
       Alert.alert('Please check your inbox for email verification!');
+      sendMagicLink();
+    }
+  }
+
+  async function handleOpenMailApp() {
+    const url = 'mailto:';
+
+    const canOpen = await Linking.canOpenURL(url);
+    if (canOpen) {
+      await Linking.openURL(url);
+    }
   }
 
   const onPress = () => {
+    if (url) createSessionFromUrl(url);
     if (authCTANumber === 0 && isAuthLoginRoute) {
       setEmail(formData.Email);
       setPassword(formData.Password);
@@ -85,10 +190,22 @@ function RootNavigator() {
       setEmail(formData.Email);
       setPassword(formData.Password);
       signUpWithEmail();
+
       router.navigate('/sign-up/user');
       increaseAuthCTANumber();
     } else if (authCTANumber === 2) {
-      login();
+      if (session) {
+        getProfile();
+      }
+
+      setFirstName(formData.first_name);
+      setFirstName(formData.last_name);
+      setAvatarUrl(formData.avatar_url);
+      updateProfile({
+        first_name: firstName,
+        last_name: lastName,
+        avatar_url: avatarUrl,
+      });
       router.navigate('/(app)');
       resetAuthCTAVariables();
     }
