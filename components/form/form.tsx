@@ -4,19 +4,10 @@ import { useStore } from '@/store/store';
 import { useCallback, useEffect, useReducer, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import CTA from '../buttons/large-cta';
-import RadioButtons from '../inputs/radio-buttons/radio-buttons';
-import TextInputComponent from '../inputs/text-inputs/text-input';
-
-import Upload from '../uploads/upload';
+import TextInputComponent from '../text-inputs/text-input';
 
 export enum FORM_TYPES {
   TEXT_INPUT = 'TEXT_INPUT',
-  RADIO = 'RADIO',
-  SWITCH = 'SWITCH', // terms and conditions
-  PICKER = 'PICKER',
-  DATE = 'DATE',
-  UPLOAD = 'UPLOAD',
-  TEXT_FIELD = 'TEXT_FIELD',
 }
 
 function reducer(state: any, action: any) {
@@ -45,14 +36,14 @@ export default function Form({
   ctaHandler?: () => void;
   hasCTA?: boolean;
 }) {
-  const [initialArgs, setInitialArgs] = useState({});
-  const [isFormCTADisabled, setIsFormCTADisabled] = useState(true);
-
-  const [state, dispatch] = useReducer(reducer, initialArgs);
   const setIsAuthCTADisabled = useStore((state) => state.setIsAuthCTADisabled);
   const authCTANumber = useStore((state) => state.authCTANumber);
   const isAuthLoginRoute = useStore((state) => state.isAuthLoginRoute);
   const setFormData = useStore((state) => state.setFormData);
+
+  const [initialArgs, setInitialArgs] = useState({});
+  const [isFormCTADisabled, setIsFormCTADisabled] = useState(true);
+  const [state, dispatch] = useReducer(reducer, initialArgs);
 
   const isFormValid = useCallback(() => {
     const validInputs = Object.values(state).every(
@@ -144,34 +135,6 @@ export default function Form({
                   />
                 </View>
               );
-            case FORM_TYPES.RADIO:
-              return (
-                <View key={index}>
-                  <Text style={styles.title}>Gender</Text>
-                  <RadioButtons
-                    borderColor={color}
-                    items={item.radioButtonItems}
-                    onSelectionChange={(selectedValue) =>
-                      handleTextChange(selectedValue, item.title)
-                    }
-                  />
-                </View>
-              );
-
-            case FORM_TYPES.UPLOAD:
-              return (
-                <View key={index}>
-                  {item.showTitle && (
-                    <Text style={styles.title}>{item.title}</Text>
-                  )}
-                  <Upload
-                    onChangeText={(text) =>
-                      handleTextChange(String(text), `${item.title}`)
-                    }
-                    borderColor={color}
-                  />
-                </View>
-              );
           }
         })}
       </View>
@@ -208,7 +171,5 @@ const styles = StyleSheet.create({
   },
   btnWrapper: {
     paddingHorizontal: 20,
-    // position: 'absolute',
-    // bottom: '5%',
   },
 });

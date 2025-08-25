@@ -1,5 +1,3 @@
-import { PAGE } from '@/constants/styles';
-import { usePageVariables } from '@/hooks/usePageVariables';
 import { supabase } from '@/lib/supabase';
 import { useStore } from '@/store/store';
 import { StyleSheet, Text, View } from 'react-native';
@@ -8,12 +6,13 @@ export default function ProfileScreen() {
   // Settings - search by guesss by flag/ name
   // sign out
   // reset favourites
+  // remove profile
 
   const resetAuthCTAVariables = useStore(
     (state) => state.resetAuthCTAVariables
   );
   return (
-    <View style={[{ ...PAGE.PAGE }, usePageVariables().pageMarginHorizontal]}>
+    <View style={styles.page}>
       <Text
         onPress={() => {
           resetAuthCTAVariables();
@@ -28,14 +27,8 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  page: {
+    flex: 1,
+    backgroundColor: 'white',
   },
 });

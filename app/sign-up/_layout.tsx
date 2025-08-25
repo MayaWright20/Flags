@@ -1,4 +1,4 @@
-import { useSession } from '@/context/authentication-context';
+import useSession from '@/hooks/useSession';
 import { Stack } from 'expo-router';
 
 export default function SignUpLayout() {
@@ -9,10 +9,6 @@ export default function SignUpLayout() {
       <Stack.Protected guard={!session}>
         <Stack.Screen
           name="index"
-          options={{ headerShown: false, animation: 'slide_from_bottom' }}
-        />
-        <Stack.Screen
-          name="user"
           options={{ headerShown: false, animation: 'slide_from_bottom' }}
         />
       </Stack.Protected>

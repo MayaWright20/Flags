@@ -127,7 +127,7 @@ export default function HomeScreen() {
               disabled={!isShowAnswer}
               style={[
                 styles.button,
-                { backgroundColor: isShowAnswer ? 'black' : 'grey' },
+                { backgroundColor: isShowAnswer ? 'black' : COLOURS.lightGrey },
               ]}
               onPress={nextQuestionHandler}
             >
@@ -149,6 +149,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   page: {
     flex: 1,
+    backgroundColor: 'white',
   },
   container: {
     flex: 1,

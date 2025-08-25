@@ -1,4 +1,3 @@
-import SmallRoundLabel from '@/components/labels/small-round-label';
 import { COLOURS } from '@/constants/colours';
 import {
   BORDER_RADIUS,
@@ -26,7 +25,6 @@ export default function TextInputComponent({
   errorMessage,
   isInputHidden,
   borderColor = COLOURS.black,
-  styleInput,
   isMultiline,
   showMaxLengthPill,
 }: {
@@ -80,15 +78,6 @@ export default function TextInputComponent({
         autoCapitalize={autoCapitalize}
         secureTextEntry={isInputHidden}
       />
-
-      {showMaxLengthPill && (
-        <SmallRoundLabel
-          color={borderColor}
-          bottom={-10}
-          right={0}
-          title={`${value.length} / ${maxLength}`}
-        />
-      )}
       {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
     </>
   );

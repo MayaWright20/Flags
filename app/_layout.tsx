@@ -1,15 +1,15 @@
 import CTA from '@/components/buttons/large-cta';
 import { SplashScreenController } from '@/components/splash/splash-screen-controller';
-import { SessionProvider } from '@/context/authentication-context';
+import useSession from '@/hooks/useSession';
+
 import { supabase } from '@/lib/supabase';
 import { useStore } from '@/store/store';
-import { Session } from '@supabase/supabase-js';
 import { makeRedirectUri } from 'expo-auth-session';
 import * as QueryParams from 'expo-auth-session/build/QueryParams';
 import * as Linking from 'expo-linking';
 import { router, Stack } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Alert,
   AppState,
@@ -20,59 +20,18 @@ import {
 
 export default function Root() {
   return (
-    <SessionProvider>
+    <>
       <SplashScreenController />
       <RootNavigator />
-    </SessionProvider>
+    </>
   );
 }
 
 function RootNavigator() {
-  const [session, setSession] = useState<Session | null>(null);
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-  }, []);
-
-  WebBrowser.maybeCompleteAuthSession();
-  const redirectTo = makeRedirectUri({
-    scheme: 'com.flagsmaya',
-    preferLocalhost: true,
-  });
-  const createSessionFromUrl = async (url: string) => {
-    const { params, errorCode } = QueryParams.getQueryParams(url);
-    if (errorCode) throw new Error(errorCode);
-    const { access_token, refresh_token } = params;
-    if (!access_token) return;
-    const { data, error } = await supabase.auth.setSession({
-      access_token,
-      refresh_token,
-    });
-    if (error) throw error;
-    return data.session;
-  };
-
-  const sendMagicLink = async () => {
-    const { error } = await supabase.auth.signInWithOtp({
-      // email: 'valid.email@supabase.io',
-      email: 'mayagwright20@gmail.com',
-      options: {
-        emailRedirectTo: redirectTo,
-      },
-    });
-
-    if (error) {
-      throw error;
-    }
-    handleOpenMailApp();
-  };
-  // const { session, login } = useSession();
+  const { session } = useSession();
   const { height } = useWindowDimensions();
   const url = Linking.useURL();
+
   const isAuthCTADisabled = useStore((state) => state.isAuthCTADisabled);
   const authCTANumber = useStore((state) => state.authCTANumber);
   const authCTATitle = useStore((state) => state.authCTATitle);
@@ -92,6 +51,8 @@ function RootNavigator() {
   const [lastName, setLastName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
 
+  WebBrowser.maybeCompleteAuthSession();
+
   AppState.addEventListener('change', (state) => {
     if (state === 'active') {
       supabase.auth.startAutoRefresh();
@@ -100,9 +61,40 @@ function RootNavigator() {
     }
   });
 
+  const redirectTo = makeRedirectUri({
+    scheme: 'com.flagsmaya',
+    preferLocalhost: true,
+  });
+
+  const createSessionFromUrl = async (url: string) => {
+    const { params, errorCode } = QueryParams.getQueryParams(url);
+    if (errorCode) throw new Error(errorCode);
+    const { access_token, refresh_token } = params;
+    if (!access_token) return;
+    const { data, error } = await supabase.auth.setSession({
+      access_token,
+      refresh_token,
+    });
+    if (error) throw error;
+    return data.session;
+  };
+
+  const sendMagicLink = async () => {
+    const { error } = await supabase.auth.signInWithOtp({
+      email: email,
+      options: {
+        emailRedirectTo: redirectTo,
+      },
+    });
+
+    if (error) {
+      throw error;
+    }
+    handleOpenMailApp();
+  };
+
   async function getProfile() {
     try {
-      if (!session?.user) throw new Error('No user on the session!');
       const { data, error, status } = await supabase
         .from('profiles')
         .select(`first_name, last_name, avatar_url`)
@@ -116,11 +108,7 @@ function RootNavigator() {
         setFirstName(data.first_name);
         setAvatarUrl(data.avatar_url);
       }
-    } catch (error) {
-      if (error instanceof Error) {
-        Alert.alert(error.message);
-      }
-    }
+    } catch {}
   }
 
   async function updateProfile({
@@ -133,7 +121,6 @@ function RootNavigator() {
     avatar_url: string;
   }) {
     try {
-      if (!session?.user) throw new Error('No user on the session!');
       const updates = {
         id: session?.user.id,
         first_name,
@@ -144,10 +131,6 @@ function RootNavigator() {
       const { error } = await supabase.from('profiles').upsert(updates);
       if (error) {
         throw error;
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        Alert.alert(error.message);
       }
     } finally {
     }
@@ -163,12 +146,10 @@ function RootNavigator() {
   async function signUpWithEmail() {
     const {
       data: { session },
-      error,
     } = await supabase.auth.signUp({
       email: email,
       password: password,
     });
-    if (error) Alert.alert('hello');
     if (!session) {
       Alert.alert('Please check your inbox for email verification!');
       sendMagicLink();

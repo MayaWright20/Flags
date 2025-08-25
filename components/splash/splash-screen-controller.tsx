@@ -1,5 +1,5 @@
-import { useSession } from "@/context/authentication-context";
-import { SplashScreen } from "expo-router";
+import useSession from '@/hooks/useSession';
+import { SplashScreen } from 'expo-router';
 
 export function SplashScreenController() {
   const { isLoading } = useSession();

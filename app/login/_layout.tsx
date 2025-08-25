@@ -1,8 +1,9 @@
-import { useSession } from '@/context/authentication-context';
+import useSession from '@/hooks/useSession';
 import { Stack } from 'expo-router';
 
 export default function Layout() {
   const { session } = useSession();
+
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={!session}>
