@@ -14,7 +14,7 @@ export default function FavouritesScreen() {
     >
       {favourites.length <= 0 && (
         <>
-          <Text style={styles.title}>No Favourites .</Text>
+          <Text style={styles.title}>No Favourites</Text>
           <View style={styles.imageWrapper}>
             <Image
               source={require('@/assets/images/no_favourites.png')}
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   title: {
-    fontSize: 21,
+    fontSize: 30,
     marginBottom: 25,
   },
 });
