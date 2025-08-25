@@ -9,7 +9,7 @@ import * as QueryParams from 'expo-auth-session/build/QueryParams';
 import * as Linking from 'expo-linking';
 import { router, Stack } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Alert,
   AppState,
@@ -18,18 +18,31 @@ import {
   View,
 } from 'react-native';
 
-export default function Root({ session }: { session: Session }) {
+export default function Root() {
   return (
     <SessionProvider>
       <SplashScreenController />
-      <RootNavigator session={session} />
+      <RootNavigator />
     </SessionProvider>
   );
 }
 
-function RootNavigator({ session }: { session: Session }) {
+function RootNavigator() {
+  const [session, setSession] = useState<Session | null>(null);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+  }, []);
+
   WebBrowser.maybeCompleteAuthSession(); // required for web only
-  const redirectTo = makeRedirectUri();
+  const redirectTo = makeRedirectUri({
+    scheme: 'com.flagsmaya',
+    preferLocalhost: true,
+  });
   const createSessionFromUrl = async (url: string) => {
     const { params, errorCode } = QueryParams.getQueryParams(url);
     if (errorCode) throw new Error(errorCode);
@@ -45,7 +58,8 @@ function RootNavigator({ session }: { session: Session }) {
 
   const sendMagicLink = async () => {
     const { error } = await supabase.auth.signInWithOtp({
-      email: 'valid.email@supabase.io',
+      // email: 'valid.email@supabase.io',
+      email: 'mayagwright20@gmail.com',
       options: {
         emailRedirectTo: redirectTo,
       },
@@ -158,7 +172,7 @@ function RootNavigator({ session }: { session: Session }) {
       email: email,
       password: password,
     });
-    if (error) Alert.alert(error.message);
+    if (error) Alert.alert('hello');
     if (!session) {
       Alert.alert('Please check your inbox for email verification!');
       sendMagicLink();
@@ -193,21 +207,23 @@ function RootNavigator({ session }: { session: Session }) {
 
       router.navigate('/sign-up/user');
       increaseAuthCTANumber();
+      console.log('in authCTA number === 1');
     } else if (authCTANumber === 2) {
       if (session) {
+        console.log('in authCTA number === 2');
         getProfile();
+        setFirstName(formData.first_name);
+        setLastName(formData.last_name);
+        setAvatarUrl(formData.avatar_url);
+        updateProfile({
+          first_name: firstName,
+          last_name: lastName,
+          avatar_url: avatarUrl,
+        });
+        router.navigate('/(app)');
+        console.log('in authCTA number === 3');
+        resetAuthCTAVariables();
       }
-
-      setFirstName(formData.first_name);
-      setFirstName(formData.last_name);
-      setAvatarUrl(formData.avatar_url);
-      updateProfile({
-        first_name: firstName,
-        last_name: lastName,
-        avatar_url: avatarUrl,
-      });
-      router.navigate('/(app)');
-      resetAuthCTAVariables();
     }
   };
 

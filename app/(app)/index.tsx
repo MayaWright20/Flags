@@ -26,7 +26,7 @@ export default function HomeScreen() {
   const [itemPressed, setItemPressed] = useState<null | number>(null);
 
   const onPress = (isCorrect: boolean, itemPress?: number) => {
-    if (itemPress !== null && itemPress) {
+    if (itemPress !== null && itemPress !== undefined) {
       setItemPressed(itemPress);
     }
     if (explosion && explosion.current && isCorrect) {

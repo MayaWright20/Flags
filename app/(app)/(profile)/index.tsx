@@ -1,6 +1,7 @@
 import { PAGE } from '@/constants/styles';
-import { useSession } from '@/context/authentication-context';
 import { usePageVariables } from '@/hooks/usePageVariables';
+import { supabase } from '@/lib/supabase';
+import { useStore } from '@/store/store';
 import { StyleSheet, Text, View } from 'react-native';
 
 export default function ProfileScreen() {
@@ -8,13 +9,15 @@ export default function ProfileScreen() {
   // sign out
   // reset favourites
 
-  const { signOut } = useSession();
+  const resetAuthCTAVariables = useStore(
+    (state) => state.resetAuthCTAVariables
+  );
   return (
     <View style={[{ ...PAGE.PAGE }, usePageVariables().pageMarginHorizontal]}>
       <Text
         onPress={() => {
-          // The `app/(app)/_layout.tsx` will redirect to the sign-in screen.
-          signOut();
+          resetAuthCTAVariables();
+          supabase.auth.signOut();
         }}
       >
         {' '}
