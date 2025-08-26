@@ -28,6 +28,7 @@ const MAPPING = {
   'list.bullet.rectangle': 'receipt',
   heart: 'star',
   'heart.fill': 'start',
+  wrench: 'settings',
 } as IconMapping;
 
 /**

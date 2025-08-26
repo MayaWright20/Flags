@@ -21,13 +21,13 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="(games)"
         options={{
-          title: 'Home',
+          title: 'Games',
           tabBarIcon: ({ color, focused }) => (
             <IconSymbol
-              size={28}
-              name={focused ? 'house.fill' : 'house'}
+              size={34}
+              name={focused ? 'gamecontroller.fill' : 'gamecontroller'}
               color={color}
             />
           ),
@@ -40,7 +40,7 @@ export default function TabLayout() {
           title: 'World flags',
           tabBarIcon: ({ color, focused }) => (
             <IconSymbol
-              size={28}
+              size={25}
               name={focused ? 'flag.fill' : 'flag'}
               color={color}
             />

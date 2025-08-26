@@ -6,7 +6,7 @@ import {
   PADDING,
   SHADOW,
 } from '@/constants/styles';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   KeyboardTypeOptions,
   StyleSheet,
@@ -26,7 +26,10 @@ export default function TextInputComponent({
   isInputHidden,
   borderColor = COLOURS.black,
   isMultiline,
+  clear,
+  inputValue,
   showMaxLengthPill,
+  editable = true,
 }: {
   placeholder: string;
   onChangeText: ((text: string) => void) | undefined;
@@ -39,7 +42,10 @@ export default function TextInputComponent({
   borderColor?: string;
   styleInput?: TextStyle;
   isMultiline?: boolean;
+  clear?: boolean;
+  inputValue?: string;
   showMaxLengthPill?: boolean;
+  editable?: boolean;
 }) {
   const [isFocused, setIsFocused] = useState(false);
   const [value, setValue] = useState('');
@@ -47,6 +53,17 @@ export default function TextInputComponent({
     setValue(text);
     onChangeText?.(text);
   };
+
+  const clearText = () => {
+    setValue('');
+  };
+
+  useEffect(() => {
+    if (clear) {
+      setValue('');
+      onChangeText?.('');
+    }
+  }, [clear, onChangeText]);
 
   return (
     <>
@@ -66,10 +83,10 @@ export default function TextInputComponent({
               : BORDER_RADIUS.XLARGE_BORDER_RADIUS,
           },
         ]}
-        value={value}
+        value={inputValue ? inputValue : value}
         multiline={isMultiline}
         placeholder={placeholder}
-        onChangeText={handleChange}
+        onChangeText={clear ? clearText : handleChange}
         keyboardType={keyboardType}
         lineBreakStrategyIOS="none"
         maxLength={maxLength}
@@ -77,6 +94,7 @@ export default function TextInputComponent({
         onBlur={() => setIsFocused(false)}
         autoCapitalize={autoCapitalize}
         secureTextEntry={isInputHidden}
+        editable={editable}
       />
       {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
     </>

@@ -1,10 +1,14 @@
 import FavouriteIcon from '@/components/buttons/favourite-icon';
+import TextInputComponent from '@/components/text-inputs/text-input';
+import { IconSymbol } from '@/components/ui/IconSymbol';
 import { COLOURS } from '@/constants/colours';
 import { SHADOW } from '@/constants/styles';
 import useCountries from '@/hooks/useCountries';
+import useProfile from '@/hooks/useProfile';
 import { countries } from '@/lib/country-codes';
 import * as Haptics from 'expo-haptics';
-import { useRef, useState } from 'react';
+import { router } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Image,
   SafeAreaView,
@@ -16,32 +20,55 @@ import {
 } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
 
-export default function HomeScreen() {
+export default function GuessFlagScreen() {
   const { allCountries } = useCountries();
+  const { isGuessTheFlagWriteAnswer } = useProfile();
+
   const explosion = useRef(null);
+
   const [randomInts, setRadomInts] = useState([0, 10, 130, 112]);
   const [correctAnswerInt, setCorrectAnswerInt] = useState(
     Math.floor(Math.random() * 4)
   );
-  const [isShowAnswer, setIsShowAnswer] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(false);
   const [itemPressed, setItemPressed] = useState<null | number>(null);
+  const [writtenAnswer, setWrittenAnswer] = useState('');
+  const [isWrittenInputEditable, setIsWrittenInputEditable] = useState(true);
+  const [clearWrittenInput, setClearWrittenInput] = useState(false);
+  const [writtenAnswerCTATitle, setWrittenAnswerCTATitle] =
+    useState('Reveal Answer');
 
   let correctAnswer = '';
+  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
 
-  const onPress = (isCorrect: boolean, itemPress?: number) => {
-    if (itemPress !== null && itemPress !== undefined) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
-      setItemPressed(itemPress);
+  if (allCountries) {
+    correctAnswer =
+      allCountries[randomInts[correctAnswerInt]]['name']['common'];
+  }
+
+  useEffect(() => {
+    if (isGuessTheFlagWriteAnswer) {
+      if (writtenAnswer.trim() !== '') {
+        setShowAnswer(true);
+      } else {
+        setShowAnswer(false);
+      }
     }
-    if (explosion && explosion.current && isCorrect) {
+    if (clearWrittenInput === true) {
+      setClearWrittenInput(false);
+    }
+  }, [isGuessTheFlagWriteAnswer, writtenAnswer, clearWrittenInput]);
+
+  const confettiHandler = () => {
+    if (explosion && explosion.current) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       explosion.current.start();
     }
-    setIsShowAnswer(true);
   };
 
-  const nextQuestionHandler = () => {
+  const nextQuestionHandler = useCallback(() => {
     setItemPressed(null);
+
     if (allCountries) {
       setRadomInts([
         Math.floor(Math.random() * allCountries.length),
@@ -51,13 +78,46 @@ export default function HomeScreen() {
       ]);
     }
     setCorrectAnswerInt(Math.floor(Math.random() * 4));
-    setIsShowAnswer(false);
+    setShowAnswer(false);
+  }, [allCountries]);
+
+  const guessAnswerHandler = (isCorrect?: boolean, itemPress?: number) => {
+    if (itemPress !== null && itemPress !== undefined) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
+      setItemPressed(itemPress);
+    }
+    if (isCorrect) {
+      confettiHandler();
+    }
+
+    setShowAnswer(true);
   };
 
-  if (allCountries) {
-    correctAnswer =
-      allCountries[randomInts[correctAnswerInt]]['name']['common'];
-  }
+  const settingsNavigator = () => {
+    router.push('/(app)/(games)/guess-the-flag-settings');
+  };
+
+  const isWriteAnswerCTAHandler = useCallback(() => {
+    if (writtenAnswerCTATitle === 'Reveal Answer') {
+      setIsWrittenInputEditable(false);
+      if (writtenAnswer.trim() === correctAnswer) {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
+        confettiHandler();
+      }
+      setWrittenAnswerCTATitle('Next Flag');
+    } else if (writtenAnswerCTATitle === 'Next Flag') {
+      setWrittenAnswerCTATitle('Reveal Answer');
+      setIsWrittenInputEditable(true);
+      setWrittenAnswer('');
+      setClearWrittenInput(true);
+      nextQuestionHandler();
+    }
+  }, [
+    correctAnswer,
+    nextQuestionHandler,
+    writtenAnswer,
+    writtenAnswerCTATitle,
+  ]);
 
   return (
     <View style={styles.page}>
@@ -67,11 +127,16 @@ export default function HomeScreen() {
             <View style={styles.imageWrapper}>
               {correctAnswer && (
                 <>
-                  <FavouriteIcon
-                    size={35}
-                    favouritedItem={correctAnswer}
-                    styles={styles.icon}
-                  />
+                  <View style={styles.iconsWrapper}>
+                    <TouchableOpacity onPress={settingsNavigator}>
+                      <IconSymbol size={35} name={'gearshape'} color={'grey'} />
+                    </TouchableOpacity>
+                    <FavouriteIcon
+                      size={35}
+                      favouritedItem={correctAnswer}
+                      styles={styles.icon}
+                    />
+                  </View>
                   <Image
                     source={{
                       uri: `https://flagcdn.com/w2560/${countries[correctAnswer]}.png`,
@@ -84,19 +149,20 @@ export default function HomeScreen() {
           )}
           <View style={styles.itemsWrapper}>
             {allCountries &&
+              !isGuessTheFlagWriteAnswer &&
               randomInts.map((item, index) => {
                 if (index === correctAnswerInt) {
                   return (
                     <TouchableOpacity
                       key={index}
                       style={styles.item}
-                      disabled={isShowAnswer}
-                      onPress={() => onPress(true)}
+                      disabled={showAnswer}
+                      onPress={() => guessAnswerHandler(true)}
                     >
                       <Text
                         style={[
                           styles.title,
-                          { color: isShowAnswer ? COLOURS.green : 'black' },
+                          { color: showAnswer ? COLOURS.green : 'black' },
                         ]}
                       >
                         {correctAnswer}
@@ -108,8 +174,8 @@ export default function HomeScreen() {
                     <TouchableOpacity
                       style={styles.item}
                       key={index}
-                      disabled={isShowAnswer}
-                      onPress={() => onPress(false, index)}
+                      disabled={showAnswer}
+                      onPress={() => guessAnswerHandler(false, index)}
                     >
                       <Text
                         style={[
@@ -123,15 +189,35 @@ export default function HomeScreen() {
                   );
                 }
               })}
+            {isGuessTheFlagWriteAnswer && (
+              <>
+                {writtenAnswerCTATitle === 'Next Flag' && (
+                  <Text style={[styles.title]}>{correctAnswer}</Text>
+                )}
+                <TextInputComponent
+                  borderColor="transparent"
+                  placeholder={'Guess the answer...'}
+                  onChangeText={(value) => setWrittenAnswer(value)}
+                  clear={clearWrittenInput}
+                  editable={isWrittenInputEditable}
+                />
+              </>
+            )}
             <TouchableOpacity
-              disabled={!isShowAnswer}
+              disabled={!showAnswer}
               style={[
                 styles.button,
-                { backgroundColor: isShowAnswer ? 'black' : COLOURS.lightGrey },
+                { backgroundColor: showAnswer ? 'black' : COLOURS.lightGrey },
               ]}
-              onPress={nextQuestionHandler}
+              onPress={
+                isGuessTheFlagWriteAnswer
+                  ? isWriteAnswerCTAHandler
+                  : nextQuestionHandler
+              }
             >
-              <Text style={[styles.title, styles.buttonText]}>Continue</Text>
+              <Text style={[styles.title, styles.buttonText]}>
+                {isGuessTheFlagWriteAnswer ? writtenAnswerCTATitle : 'Continue'}
+              </Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -158,10 +244,10 @@ const styles = StyleSheet.create({
     width: '95%',
     alignSelf: 'center',
     flex: 1,
+    marginBottom: '35%',
   },
   imageWrapper: {
     flex: 1,
-    marginBottom: 10,
   },
   itemsWrapper: {
     flex: 1,
@@ -175,10 +261,15 @@ const styles = StyleSheet.create({
     objectFit: 'contain',
     ...SHADOW,
   },
+  iconsWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 15,
+  },
   icon: {
     alignSelf: 'flex-end',
-    margin: 15,
-    position: 'relative',
+    // margin: 15,
+    // position: 'relative',
   },
   item: {
     marginVertical: 5,

@@ -6,6 +6,8 @@ import { Alert } from 'react-native';
 export default function useProfile() {
   const { session } = useSession();
   const [favourites, setFavourites] = useState<string[]>([]);
+  const [isGuessTheFlagWriteAnswer, setIsGuessTheFlagWriteAnswer] =
+    useState<boolean>(false);
 
   useEffect(() => {
     getProfile();
@@ -15,23 +17,33 @@ export default function useProfile() {
     try {
       const { data, error, status } = await supabase
         .from('profiles')
-        .select('favourites')
+        .select('favourites,  is_guess_the_flag_write_answer')
         .eq('id', session?.user.id)
         .single();
       if (error && status !== 406) throw error;
-      if (data) setFavourites(data.favourites);
+      if (data) {
+        setFavourites(data.favourites);
+        setIsGuessTheFlagWriteAnswer(data.is_guess_the_flag_write_answer);
+      }
     } catch (error) {
       if (error instanceof Error) Alert.alert(error.message);
     }
   }, [session]);
 
   const updateProfile = useCallback(
-    async ({ favourites }: { favourites?: string[] | [] }) => {
+    async ({
+      favourites,
+      isGuessTheFlagWriteAnswer,
+    }: {
+      favourites?: string[] | [];
+      isGuessTheFlagWriteAnswer?: boolean;
+    }) => {
       try {
         if (!session?.user) throw new Error('No user on the session!');
         const updates = {
           id: session?.user.id,
           favourites,
+          is_guess_the_flag_write_answer: isGuessTheFlagWriteAnswer,
         };
         const { error } = await supabase.from('profiles').upsert(updates);
         if (error) {
@@ -47,7 +59,7 @@ export default function useProfile() {
     [session]
   );
 
-  const setAsFavourite = (item: string) => {
+  const setfavouriteHandler = (item: string) => {
     if (favourites.includes(item)) {
       const updated = favourites.filter((fav) => fav !== item);
       updateProfile({ favourites: updated });
@@ -57,9 +69,15 @@ export default function useProfile() {
     }
   };
 
+  const guessTheFlagWriteAnswerHandler = () => {
+    updateProfile({ isGuessTheFlagWriteAnswer: !isGuessTheFlagWriteAnswer });
+  };
+
   return {
     favourites,
-    setFavourites: setAsFavourite,
+    setFavourites: setfavouriteHandler,
     getProfile,
+    setIsGuessTheFlagWriteAnswer: guessTheFlagWriteAnswerHandler,
+    isGuessTheFlagWriteAnswer,
   };
 }
