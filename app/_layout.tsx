@@ -63,7 +63,7 @@ function RootNavigator() {
 
   const redirectTo = makeRedirectUri({
     scheme: 'com.flagsmaya',
-    preferLocalhost: true,
+    // preferLocalhost: true,
   });
 
   const createSessionFromUrl = async (url: string) => {

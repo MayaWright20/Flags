@@ -98,7 +98,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '99%',
     justifyContent: 'center',
-    backgroundColor: 'pink',
     aspectRatio: 1,
     marginBottom: 5,
     position: 'relative',
