@@ -83,7 +83,6 @@ export default function GuessFlagScreen() {
 
   const guessAnswerHandler = (isCorrect?: boolean, itemPress?: number) => {
     if (itemPress !== null && itemPress !== undefined) {
-      console.log('hello 2');
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
       setItemPressed(itemPress);
     }
@@ -98,12 +97,10 @@ export default function GuessFlagScreen() {
     router.push('/(app)/(games)/guess-the-flag-settings');
   };
 
-  const isWriteAnswerCTAHandler = useCallback(() => {
-    console.log('hello');
+  const isWriteAnswerCTAHandler = () => {
     if (writtenAnswerCTATitle === 'Reveal Answer') {
       setIsWrittenInputEditable(false);
-      if (writtenAnswer.trim() === correctAnswer) {
-        console.log('hello 1');
+      if (writtenAnswer.trim().toLowerCase() === correctAnswer.toLowerCase()) {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
         confettiHandler();
       }
@@ -115,7 +112,7 @@ export default function GuessFlagScreen() {
       setClearWrittenInput(true);
       nextQuestionHandler();
     }
-  }, [writtenAnswerCTATitle]);
+  };
 
   return (
     <View style={styles.page}>
