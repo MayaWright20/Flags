@@ -5,6 +5,7 @@ import { SHADOW } from '@/constants/styles';
 import useCountries from '@/hooks/useCountries';
 import { countries } from '@/lib/country-codes';
 import { FlashList } from '@shopify/flash-list';
+import { Link } from 'expo-router';
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
@@ -46,27 +47,34 @@ export default function FlagsScreen() {
     const showLetter = index === 0 || currentLetter !== prevLetter;
     const countryName = item['name']['common'];
     return (
-      <React.Fragment>
+      <>
         {showLetter && <Text style={styles.letterHeader}>{currentLetter}</Text>}
-        <View style={styles.item}>
-          <View style={styles.imageWrapper}>
-            <Image
-              source={{
-                uri: `https://flagcdn.com/w2560/${countries[countryName]}.png`,
-              }}
-              style={styles.image}
-            />
+        <Link
+          href={{
+            pathname: '/[id]',
+            params: { id: countryName },
+          }}
+        >
+          <View style={styles.item}>
+            <View style={styles.imageWrapper}>
+              <Image
+                source={{
+                  uri: `https://flagcdn.com/w2560/${countries[countryName]}.png`,
+                }}
+                style={styles.image}
+              />
+            </View>
+            <View style={styles.wrapper}>
+              <FavouriteIcon
+                size={35}
+                favouritedItem={countryName}
+                styles={styles.icon}
+              />
+              <Text style={styles.title}>{countryName}</Text>
+            </View>
           </View>
-          <View style={styles.wrapper}>
-            <FavouriteIcon
-              size={35}
-              favouritedItem={countryName}
-              styles={styles.icon}
-            />
-            <Text style={styles.title}>{countryName}</Text>
-          </View>
-        </View>
-      </React.Fragment>
+        </Link>
+      </>
     );
   };
 

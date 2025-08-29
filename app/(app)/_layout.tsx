@@ -38,6 +38,7 @@ export default function TabLayout() {
         name="(flags)"
         options={{
           title: 'World flags',
+          headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <IconSymbol
               size={25}
