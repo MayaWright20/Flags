@@ -83,6 +83,7 @@ export default function GuessFlagScreen() {
 
   const guessAnswerHandler = (isCorrect?: boolean, itemPress?: number) => {
     if (itemPress !== null && itemPress !== undefined) {
+      console.log('hello 2');
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
       setItemPressed(itemPress);
     }
@@ -98,9 +99,11 @@ export default function GuessFlagScreen() {
   };
 
   const isWriteAnswerCTAHandler = useCallback(() => {
+    console.log('hello');
     if (writtenAnswerCTATitle === 'Reveal Answer') {
       setIsWrittenInputEditable(false);
       if (writtenAnswer.trim() === correctAnswer) {
+        console.log('hello 1');
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
         confettiHandler();
       }
@@ -112,12 +115,7 @@ export default function GuessFlagScreen() {
       setClearWrittenInput(true);
       nextQuestionHandler();
     }
-  }, [
-    correctAnswer,
-    nextQuestionHandler,
-    writtenAnswer,
-    writtenAnswerCTATitle,
-  ]);
+  }, [writtenAnswerCTATitle]);
 
   return (
     <View style={styles.page}>
