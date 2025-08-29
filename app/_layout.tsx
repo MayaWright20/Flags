@@ -35,25 +35,27 @@ function RootNavigator() {
 
   const url = Linking.useURL();
 
-  const isAuthCTADisabled = useStore((state) => state.isAuthCTADisabled);
-  const authCTANumber = useStore((state) => state.authCTANumber);
-  const authCTATitle = useStore((state) => state.authCTATitle);
+  const isAuthCTADisabled = useStore((state: any) => state.isAuthCTADisabled);
+  const authCTANumber = useStore((state: any) => state.authCTANumber);
+  const authCTATitle = useStore((state: any) => state.authCTATitle);
   const increaseAuthCTANumber = useStore(
-    (state) => state.increaseAuthCTANumber
+    (state: any) => state.increaseAuthCTANumber
   );
   const resetAuthCTAVariables = useStore(
-    (state) => state.resetAuthCTAVariables
+    (state: any) => state.resetAuthCTAVariables
   );
-  const isAuthLoginRoute = useStore((state) => state.isAuthLoginRoute);
-  const setIsAuthLoginRoute = useStore((state) => state.setIsAuthLoginRoute);
-  const formData = useStore((state) => state.formData);
+  const isAuthLoginRoute = useStore((state: any) => state.isAuthLoginRoute);
+  const setIsAuthLoginRoute = useStore(
+    (state: any) => state.setIsAuthLoginRoute
+  );
+  const formData = useStore((state: any) => state.formData);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   WebBrowser.maybeCompleteAuthSession();
 
-  AppState.addEventListener('change', (state) => {
+  AppState.addEventListener('change', (state: any) => {
     if (state === 'active') {
       supabase.auth.startAutoRefresh();
     } else {

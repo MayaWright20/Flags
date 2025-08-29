@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 
 export default function useCountries() {
-  const [allCountries, setAllCountries] = useState(null);
+  const [allCountries, setAllCountries] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
   const fetchPost = async () => {

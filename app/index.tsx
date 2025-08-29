@@ -10,7 +10,9 @@ import {
 } from 'react-native';
 
 export default function Index() {
-  const setIsAuthLoginRoute = useStore((state) => state.setIsAuthLoginRoute);
+  const setIsAuthLoginRoute = useStore(
+    (state: any) => state.setIsAuthLoginRoute
+  );
   const { height } = useWindowDimensions();
 
   return (

@@ -8,7 +8,7 @@ import useProfile from '@/hooks/useProfile';
 import { countries } from '@/lib/country-codes';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Image,
   SafeAreaView,
@@ -24,7 +24,12 @@ export default function GuessFlagScreen() {
   const { allCountries } = useCountries();
   const { isGuessTheFlagWriteAnswer } = useProfile();
 
-  const explosion = useRef(null);
+  const allCountriesCount = useMemo(
+    () => allCountries && allCountries.length + 1,
+    [allCountries]
+  );
+
+  const explosion = useRef<any>(null);
 
   const [randomInts, setRadomInts] = useState([0, 10, 130, 112]);
   const [correctAnswerInt, setCorrectAnswerInt] = useState(
@@ -71,15 +76,15 @@ export default function GuessFlagScreen() {
 
     if (allCountries) {
       setRadomInts([
-        Math.floor(Math.random() * allCountries.length),
-        Math.floor(Math.random() * allCountries.length),
-        Math.floor(Math.random() * allCountries.length),
-        Math.floor(Math.random() * allCountries.length),
+        Math.floor(Math.random() * allCountriesCount),
+        Math.floor(Math.random() * allCountriesCount),
+        Math.floor(Math.random() * allCountriesCount),
+        Math.floor(Math.random() * allCountriesCount),
       ]);
     }
     setCorrectAnswerInt(Math.floor(Math.random() * 4));
     setShowAnswer(false);
-  }, [allCountries]);
+  }, [allCountries, allCountriesCount]);
 
   const guessAnswerHandler = (isCorrect?: boolean, itemPress?: number) => {
     if (itemPress !== null && itemPress !== undefined) {
@@ -127,6 +132,7 @@ export default function GuessFlagScreen() {
                       <IconSymbol size={35} name={'gearshape'} color={'grey'} />
                     </TouchableOpacity>
                     <FavouriteIcon
+                      disabled={!showAnswer}
                       size={35}
                       favouritedItem={correctAnswer}
                       styles={styles.icon}

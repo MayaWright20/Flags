@@ -16,9 +16,13 @@ import {
 const { height: screenHeight } = Dimensions.get('window');
 
 export default function LoginScreen() {
-  const setAuthCTATitle = useStore((state) => state.setAuthCTATitle);
-  const setIsAuthCTADisabled = useStore((state) => state.setIsAuthCTADisabled);
-  const setIsAuthLoginRoute = useStore((state) => state.setIsAuthLoginRoute);
+  const setAuthCTATitle = useStore((state: any) => state.setAuthCTATitle);
+  const setIsAuthCTADisabled = useStore(
+    (state: any) => state.setIsAuthCTADisabled
+  );
+  const setIsAuthLoginRoute = useStore(
+    (state: any) => state.setIsAuthLoginRoute
+  );
 
   useEffect(() => {
     setIsAuthLoginRoute(true);

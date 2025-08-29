@@ -10,7 +10,7 @@ export default function ProfileScreen() {
   // remove profile
 
   const resetAuthCTAVariables = useStore(
-    (state) => state.resetAuthCTAVariables
+    (state: any) => state.resetAuthCTAVariables
   );
 
   const signOutHandler = () => {

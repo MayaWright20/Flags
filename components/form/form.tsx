@@ -36,10 +36,12 @@ export default function Form({
   ctaHandler?: () => void;
   hasCTA?: boolean;
 }) {
-  const setIsAuthCTADisabled = useStore((state) => state.setIsAuthCTADisabled);
-  const authCTANumber = useStore((state) => state.authCTANumber);
-  const isAuthLoginRoute = useStore((state) => state.isAuthLoginRoute);
-  const setFormData = useStore((state) => state.setFormData);
+  const setIsAuthCTADisabled = useStore(
+    (state: any) => state.setIsAuthCTADisabled
+  );
+  const authCTANumber = useStore((state: any) => state.authCTANumber);
+  const isAuthLoginRoute = useStore((state: any) => state.isAuthLoginRoute);
+  const setFormData = useStore((state: any) => state.setFormData);
 
   const [initialArgs, setInitialArgs] = useState({});
   const [isFormCTADisabled, setIsFormCTADisabled] = useState(true);
@@ -124,11 +126,11 @@ export default function Form({
                     // errorState={
 
                     //   item.regex &&
-                    //   !item.regex.test(state[item.title]) &&
+                    //   !item.regex.test(state : any[item.title]) &&
                     //   state[item.title].trim() !== ''
                     // }
                     // errorMessage={
-                    //   item.regex && item.regex.test(state[item.title])
+                    //   item.regex && item.regex.test(state : any[item.title])
                     //     ? undefined
                     //     : item.errorMessage
                     // }

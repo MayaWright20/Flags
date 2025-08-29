@@ -16,10 +16,11 @@ export default function FlagsScreen() {
   const sortedCountries =
     allCountries
       ?.slice()
-      .sort((a, b) => a.name.common.localeCompare(b.name.common)) || [];
+      .sort((a: any, b: any) => a.name.common.localeCompare(b.name.common)) ||
+    [];
 
   const filteredCountries = search
-    ? sortedCountries.filter((country) =>
+    ? sortedCountries.filter((country: any) =>
         country.name.common.toLowerCase().includes(search.toLowerCase())
       )
     : sortedCountries;
