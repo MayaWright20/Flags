@@ -2,6 +2,7 @@ import FavouriteIcon from '@/components/buttons/favourite-icon';
 import useProfile from '@/hooks/useProfile';
 import { countries } from '@/lib/country-codes';
 import { FlashList } from '@shopify/flash-list';
+import { Link } from 'expo-router';
 import React from 'react';
 import { Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
@@ -10,26 +11,33 @@ export default function FavouritesScreen() {
 
   const renderItem = ({ item }: { item: any }) => {
     return (
-      <View style={styles.itemContainer}>
-        <View style={styles.itemWrapper}>
-          {countries && (
-            <>
-              <FavouriteIcon
-                size={28}
-                favouritedItem={item}
-                styles={styles.icon}
-              />
-              <Image
-                source={{
-                  uri: `https://flagcdn.com/w2560/${countries[item]}.png`,
-                }}
-                style={styles.itemImage}
-              />
-            </>
-          )}
+      <Link
+        href={{
+          pathname: '/[id]',
+          params: { id: item },
+        }}
+      >
+        <View style={styles.itemContainer}>
+          <View style={styles.itemWrapper}>
+            {countries && (
+              <>
+                <FavouriteIcon
+                  size={28}
+                  favouritedItem={item}
+                  styles={styles.icon}
+                />
+                <Image
+                  source={{
+                    uri: `https://flagcdn.com/w2560/${countries[item]}.png`,
+                  }}
+                  style={styles.itemImage}
+                />
+              </>
+            )}
+          </View>
+          <Text>{item}</Text>
         </View>
-        <Text>{item}</Text>
-      </View>
+      </Link>
     );
   };
 
@@ -104,7 +112,6 @@ const styles = StyleSheet.create({
     objectFit: 'scale-down',
   },
   itemImage: {
-    position: 'absolute',
     width: '100%',
     height: '100%',
   },
@@ -114,6 +121,7 @@ const styles = StyleSheet.create({
     top: 0,
     alignSelf: 'flex-end',
     mixBlendMode: 'difference',
-    margin: 5,
+    marginRight: 5,
+    marginTop: 10,
   },
 });
