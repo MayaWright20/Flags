@@ -25,7 +25,7 @@ export default function GuessFlagScreen() {
   const { isGuessTheFlagWriteAnswer } = useProfile();
 
   const allCountriesCount = useMemo(
-    () => allCountries && allCountries.length + 1,
+    () => allCountries && allCountries.length,
     [allCountries]
   );
 
@@ -44,7 +44,6 @@ export default function GuessFlagScreen() {
     useState('Reveal Answer');
 
   let correctAnswer = '';
-  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
 
   if (allCountries) {
     correctAnswer =
@@ -84,7 +83,7 @@ export default function GuessFlagScreen() {
     }
     setCorrectAnswerInt(Math.floor(Math.random() * 4));
     setShowAnswer(false);
-  }, [allCountries, allCountriesCount]);
+  }, [allCountries]);
 
   const guessAnswerHandler = (isCorrect?: boolean, itemPress?: number) => {
     if (itemPress !== null && itemPress !== undefined) {
@@ -102,7 +101,7 @@ export default function GuessFlagScreen() {
     router.push('/(app)/(games)/guess-the-flag-settings');
   };
 
-  const isWriteAnswerCTAHandler = () => {
+  const isWriteAnswerCTAHandler = useCallback(() => {
     if (writtenAnswerCTATitle === 'Reveal Answer') {
       setIsWrittenInputEditable(false);
       if (writtenAnswer.trim().toLowerCase() === correctAnswer.toLowerCase()) {
@@ -117,7 +116,7 @@ export default function GuessFlagScreen() {
       setClearWrittenInput(true);
       nextQuestionHandler();
     }
-  };
+  }, [writtenAnswerCTATitle]);
 
   return (
     <View style={styles.page}>
