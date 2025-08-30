@@ -23,7 +23,7 @@ export default function ProfileScreen() {
         source={require('@/assets/images/laying.png')}
         style={{ width: '100%', height: 200, marginBottom: 150 }}
       />
-      <CTA title={'Sign out'} onPress={signOutHandler} />
+      <CTA title={'Sign out'} onPress={signOutHandler} style={styles.cta} />
     </View>
   );
 }
@@ -33,6 +33,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: 'white',
-    marginHorizontal: 5,
+  },
+  cta: {
+    width: '95%',
   },
 });

@@ -4,7 +4,6 @@ import { SHADOW } from '@/constants/styles';
 import { useWikipediaSummary } from '@/hooks/useWikipedia';
 import React from 'react';
 import {
-  ActivityIndicator,
   Image,
   Linking,
   ScrollView,
@@ -12,6 +11,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import ActivityLoading from '../loading/activity-loading';
 
 export default function CountryScreen({
   countryName,
@@ -21,12 +21,7 @@ export default function CountryScreen({
   const { data, loading, error } = useWikipediaSummary(countryName);
 
   if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" />
-        <Text style={styles.muted}>Loading facts…</Text>
-      </View>
-    );
+    return <ActivityLoading loading={loading} />;
   }
 
   if (error || !data) {
