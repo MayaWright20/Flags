@@ -119,12 +119,6 @@ export default function GuessFlagScreen() {
     }
   };
 
-  // const onPressImage = () => {
-  //   if (writtenAnswerCTATitle === 'Next Flag' || showAnswer) {
-
-  //   }
-  // };
-
   return (
     <View style={styles.page}>
       <ScrollView contentContainerStyle={styles.scrollview}>

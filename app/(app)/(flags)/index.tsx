@@ -50,28 +50,27 @@ export default function FlagsScreen() {
       <>
         {showLetter && <Text style={styles.letterHeader}>{currentLetter}</Text>}
         <Link
+          style={styles.item}
           href={{
             pathname: '/[id]',
             params: { id: countryName },
           }}
         >
-          <View style={styles.item}>
-            <View style={styles.imageWrapper}>
-              <Image
-                source={{
-                  uri: `https://flagcdn.com/w2560/${countries[countryName]}.png`,
-                }}
-                style={styles.image}
-              />
-            </View>
-            <View style={styles.wrapper}>
-              <FavouriteIcon
-                size={35}
-                favouritedItem={countryName}
-                styles={styles.icon}
-              />
-              <Text style={styles.title}>{countryName}</Text>
-            </View>
+          <View style={styles.imageWrapper}>
+            <Image
+              source={{
+                uri: `https://flagcdn.com/w2560/${countries[countryName]}.png`,
+              }}
+              style={styles.image}
+            />
+          </View>
+          <View style={styles.wrapper}>
+            <FavouriteIcon
+              size={35}
+              favouritedItem={countryName}
+              styles={styles.icon}
+            />
+            <Text style={styles.title}>{countryName}</Text>
           </View>
         </Link>
       </>
@@ -132,6 +131,7 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
     height: '100%',
+    width: '74%',
   },
   title: {
     marginLeft: 20,
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     alignSelf: 'flex-end',
-    margin: 7,
+    margin: 5,
   },
   letterHeader: {
     fontWeight: 'bold',
