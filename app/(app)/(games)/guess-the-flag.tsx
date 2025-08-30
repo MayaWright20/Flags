@@ -1,4 +1,5 @@
 import FavouriteIcon from '@/components/buttons/favourite-icon';
+import ActivityLoading from '@/components/loading/activity-loading';
 import TextInputComponent from '@/components/text-inputs/text-input';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { COLOURS } from '@/constants/colours';
@@ -117,6 +118,10 @@ export default function GuessFlagScreen() {
       nextQuestionHandler();
     }
   }, [writtenAnswerCTATitle]);
+
+  if (!allCountries) {
+    return <ActivityLoading />;
+  }
 
   return (
     <View style={styles.page}>

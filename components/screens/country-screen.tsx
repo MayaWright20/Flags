@@ -21,7 +21,7 @@ export default function CountryScreen({
   const { data, loading, error } = useWikipediaSummary(countryName);
 
   if (loading) {
-    return <ActivityLoading loading={loading} />;
+    return <ActivityLoading />;
   }
 
   if (error || !data) {
