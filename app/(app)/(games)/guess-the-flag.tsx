@@ -131,7 +131,10 @@ export default function GuessFlagScreen() {
                       <IconSymbol size={35} name={'gearshape'} color={'grey'} />
                     </TouchableOpacity>
                     <FavouriteIcon
-                      disabled={!showAnswer}
+                      disabled={
+                        (isWrittenInputEditable && isGuessTheFlagWriteAnswer) ||
+                        (!isGuessTheFlagWriteAnswer && !showAnswer)
+                      }
                       size={35}
                       favouritedItem={correctAnswer}
                       styles={styles.icon}
