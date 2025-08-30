@@ -271,8 +271,6 @@ const styles = StyleSheet.create({
   },
   icon: {
     alignSelf: 'flex-end',
-    // margin: 15,
-    // position: 'relative',
   },
   item: {
     marginVertical: 5,
