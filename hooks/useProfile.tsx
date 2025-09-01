@@ -1,17 +1,19 @@
 import useSession from '@/hooks/useSession';
 import { supabase } from '@/lib/supabase';
-import { useCallback, useEffect, useState } from 'react';
+import { useStore } from '@/store/store';
+import { useCallback, useEffect } from 'react';
 import { Alert } from 'react-native';
 
 export default function useProfile() {
   const { session } = useSession();
-  const [favourites, setFavourites] = useState<string[]>([]);
-  const [isGuessTheFlagWriteAnswer, setIsGuessTheFlagWriteAnswer] =
-    useState<boolean>(false);
-
-  useEffect(() => {
-    getProfile();
-  }, [session, favourites]);
+  const favourites = useStore((state: any) => state.favourites);
+  const setStoreFavourites = useStore((state: any) => state.setStoreFavourites);
+  const isGuessTheFlagWriteAnswer = useStore(
+    (state: any) => state.isGuessTheFlagWriteAnswer
+  );
+  const setStoreIsGuessTheFlagWriteAnswer = useStore(
+    (state: any) => state.setStoreIsGuessTheFlagWriteAnswer
+  );
 
   const getProfile = useCallback(async () => {
     try {
@@ -22,13 +24,13 @@ export default function useProfile() {
         .single();
       if (error && status !== 406) throw error;
       if (data) {
-        setFavourites(data.favourites);
-        setIsGuessTheFlagWriteAnswer(data.is_guess_the_flag_write_answer);
+        setStoreFavourites(data.favourites);
+        setStoreIsGuessTheFlagWriteAnswer(data.is_guess_the_flag_write_answer);
       }
     } catch (error) {
       if (error instanceof Error) Alert.alert(error.message);
     }
-  }, [session]);
+  }, [session?.user, setStoreFavourites, setStoreIsGuessTheFlagWriteAnswer]);
 
   const updateProfile = useCallback(
     async ({
@@ -54,23 +56,36 @@ export default function useProfile() {
           Alert.alert(error.message);
         }
       } finally {
+        return;
       }
     },
-    [session]
+    [session?.user]
   );
 
-  const setfavouriteHandler = (item: string) => {
-    if (favourites.includes(item)) {
-      const updated = favourites.filter((fav) => fav !== item);
-      updateProfile({ favourites: updated });
-    } else {
-      const updated = [...favourites, item];
-      updateProfile({ favourites: updated });
-    }
-  };
+  useEffect(() => {
+    getProfile();
+    console.log('useEffect');
+  }, [session]);
+
+  const setfavouriteHandler = useCallback(
+    async (item: string) => {
+      if (favourites.includes(item)) {
+        const updated = favourites.filter((fav: string) => fav !== item);
+        setStoreFavourites(updated);
+        await updateProfile({ favourites: updated });
+      } else {
+        const updated = [...favourites, item];
+        setStoreFavourites(updated);
+        await updateProfile({ favourites: updated });
+      }
+    },
+    [favourites, updateProfile, setStoreFavourites]
+  );
 
   const guessTheFlagWriteAnswerHandler = () => {
-    updateProfile({ isGuessTheFlagWriteAnswer: !isGuessTheFlagWriteAnswer });
+    const newValue = !isGuessTheFlagWriteAnswer;
+    setStoreIsGuessTheFlagWriteAnswer(newValue);
+    updateProfile({ isGuessTheFlagWriteAnswer: newValue });
   };
 
   return {

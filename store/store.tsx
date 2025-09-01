@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 export const useStore = create((set) => ({
+  // Auth related state
   authCTATitle: 'Sign up',
   setAuthCTATitle: (title: string) => set(() => ({ authCTATitle: title })),
   isAuthCTADisabled: false,
@@ -23,4 +24,10 @@ export const useStore = create((set) => ({
     })),
   formData: null,
   setFormData: (formData: any) => set((state: any) => ({ formData: formData })),
+  favourites: [] as string[],
+  setStoreFavourites: (favouriteItems: string[]) =>
+    set(() => ({ favourites: favouriteItems })),
+  isGuessTheFlagWriteAnswer: false,
+  setStoreIsGuessTheFlagWriteAnswer: (isGuessTheFlagWriteAnswer: boolean) =>
+    set(() => ({ isGuessTheFlagWriteAnswer })),
 }));

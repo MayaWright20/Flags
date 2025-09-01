@@ -1,23 +1,14 @@
 import CTA from '@/components/buttons/large-cta';
 import { SplashScreenController } from '@/components/splash/splash-screen-controller';
 import useProfile from '@/hooks/useProfile';
-import useSession from '@/hooks/useSession';
 
 import { supabase } from '@/lib/supabase';
 import { useStore } from '@/store/store';
-import { makeRedirectUri } from 'expo-auth-session';
-import * as QueryParams from 'expo-auth-session/build/QueryParams';
+import { Session } from '@supabase/supabase-js';
 import * as Linking from 'expo-linking';
 import { router, Stack } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
-import { useState } from 'react';
-import {
-  Alert,
-  AppState,
-  StyleSheet,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { useEffect, useState } from 'react';
+import { Alert, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 export default function Root() {
   return (
@@ -29,7 +20,6 @@ export default function Root() {
 }
 
 function RootNavigator() {
-  const { session } = useSession();
   const { height } = useWindowDimensions();
   const { getProfile } = useProfile();
 
@@ -52,84 +42,44 @@ function RootNavigator() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  WebBrowser.maybeCompleteAuthSession();
-
-  AppState.addEventListener('change', (state: any) => {
-    if (state === 'active') {
-      supabase.auth.startAutoRefresh();
-    } else {
-      supabase.auth.stopAutoRefresh();
-    }
-  });
-
-  const redirectTo = makeRedirectUri({
-    scheme: 'com.flagsmaya',
-    // preferLocalhost: true,
-  });
-
-  const createSessionFromUrl = async (url: string) => {
-    const { params, errorCode } = QueryParams.getQueryParams(url);
-    if (errorCode) throw new Error(errorCode);
-    const { access_token, refresh_token } = params;
-    if (!access_token) return;
-    const { data, error } = await supabase.auth.setSession({
-      access_token,
-      refresh_token,
+  const [session, setSession] = useState<Session | null>(null);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
     });
-    if (error) throw error;
-    return data.session;
-  };
-
-  const sendMagicLink = async () => {
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email,
-      options: {
-        emailRedirectTo: redirectTo,
-      },
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
     });
-
-    if (error) {
-      throw error;
-    }
-    handleOpenMailApp();
-  };
+  }, []);
 
   async function signInWithEmail() {
+    setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
       email: email,
       password: password,
     });
-    if (error) Alert.alert(error.message);
+    if (error) Alert.alert(error.message, 'here');
+    setLoading(false);
   }
-
   async function signUpWithEmail() {
+    setLoading(true);
     const {
       data: { session },
+      error,
     } = await supabase.auth.signUp({
       email: email,
       password: password,
     });
-    if (!session) {
-      Alert.alert(
-        'Please check your inbox for email verification!',
-        'Go to your email app'
-      );
-      sendMagicLink();
-    }
-  }
-
-  async function handleOpenMailApp() {
-    const url = 'mailto:';
-
-    const canOpen = await Linking.canOpenURL(url);
-    if (canOpen) {
-      await Linking.openURL(url);
-    }
+    if (error) Alert.alert(error.message);
+    if (!session)
+      Alert.alert('Please check your inbox for email verification!');
+    setLoading(false);
   }
 
   const onPress = () => {
-    if (url) createSessionFromUrl(url);
+    // if (url) createSessionFromUrl(url);
     if (authCTANumber === 0 && isAuthLoginRoute) {
       setEmail(formData.Email);
       setPassword(formData.Password);
