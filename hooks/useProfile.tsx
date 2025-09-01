@@ -64,7 +64,6 @@ export default function useProfile() {
 
   useEffect(() => {
     getProfile();
-    console.log('useEffect');
   }, [session]);
 
   const setfavouriteHandler = useCallback(

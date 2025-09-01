@@ -5,7 +5,6 @@ import useProfile from '@/hooks/useProfile';
 import { supabase } from '@/lib/supabase';
 import { useStore } from '@/store/store';
 import { Session } from '@supabase/supabase-js';
-import * as Linking from 'expo-linking';
 import { router, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, StyleSheet, useWindowDimensions, View } from 'react-native';
@@ -22,8 +21,6 @@ export default function Root() {
 function RootNavigator() {
   const { height } = useWindowDimensions();
   const { getProfile } = useProfile();
-
-  const url = Linking.useURL();
 
   const isAuthCTADisabled = useStore((state: any) => state.isAuthCTADisabled);
   const authCTANumber = useStore((state: any) => state.authCTANumber);
@@ -63,6 +60,7 @@ function RootNavigator() {
     if (error) Alert.alert(error.message, 'here');
     setLoading(false);
   }
+
   async function signUpWithEmail() {
     setLoading(true);
     const {
@@ -79,7 +77,6 @@ function RootNavigator() {
   }
 
   const onPress = () => {
-    // if (url) createSessionFromUrl(url);
     if (authCTANumber === 0 && isAuthLoginRoute) {
       setEmail(formData.Email);
       setPassword(formData.Password);
