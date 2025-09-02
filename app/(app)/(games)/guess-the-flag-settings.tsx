@@ -9,7 +9,7 @@ import {
   RealtimeChannel,
 } from '@supabase/supabase-js';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Image, SafeAreaView, StyleSheet, View } from 'react-native';
+import { Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
 const TABLE_NAME = 'guess_the_flag_multiplayer';
 
@@ -23,6 +23,7 @@ export default function GuessTheFlagSettingScreen() {
 
   const [roomName, setRoomName] = useState('');
   const [name, setName] = useState('');
+  const [players, setPlayers] = useState<string[] | null>(null);
 
   const isValidRoomName = useMemo(
     () => roomName.trim() !== '' && roomName.length >= 4,
@@ -37,6 +38,12 @@ export default function GuessTheFlagSettingScreen() {
     user: name || 'anon',
     online_at: new Date().toISOString(),
   };
+
+  useEffect(() => {
+    if (isMultiplayer) {
+      setPlayers(null);
+    }
+  }, [isMultiplayer]);
 
   // helper: safely close the current channel
   const teardownChannel = async () => {
@@ -65,12 +72,16 @@ export default function GuessTheFlagSettingScreen() {
       .on('presence', { event: 'sync' }, () => {
         const newState = channel.presenceState();
         console.log('presence:sync', newState);
+        setPlayers(Object.keys(newState));
       })
       .on('presence', { event: 'join' }, ({ key, newPresences }) => {
         console.log('presence:join', key, newPresences);
       })
       .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
         console.log('presence:leave', key, leftPresences);
+        setPlayers(
+          (current) => current && [...current].filter((item) => item === key)
+        );
       });
 
     // postgres changes (filter by room if you have a room column)
@@ -152,16 +163,26 @@ export default function GuessTheFlagSettingScreen() {
               borderColor={isValidName ? '#3bea06' : '#767577'}
               onChangeText={setName}
               value={name}
+              editable={!(isMultiplayer && players && players.length >= 2)}
             />
             <TextInputComponent
               placeholder={'Room name'}
               borderColor={isValidRoomName ? '#3bea06' : '#767577'}
               onChangeText={setRoomName}
               value={roomName}
+              editable={!(isMultiplayer && players && players.length >= 2)}
             />
+            {players &&
+              players.map((item, index) => <Text key={index}>{item}</Text>)}
             <CTA
-              disabled={!isValidRoomName || !isValidName}
-              title={'Start Game'}
+              disabled={
+                !isValidRoomName ||
+                !isValidName ||
+                (players && players.length <= 1)
+              }
+              title={
+                players && players.length >= 1 ? 'Start Game' : 'Join Room'
+              }
               onPress={onPressMultiplayer}
             />
           </>
