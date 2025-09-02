@@ -30,4 +30,7 @@ export const useStore = create((set) => ({
   isGuessTheFlagWriteAnswer: false,
   setStoreIsGuessTheFlagWriteAnswer: (isGuessTheFlagWriteAnswer: boolean) =>
     set(() => ({ isGuessTheFlagWriteAnswer })),
+  isMultiplayer: false,
+  setMultiplayer: () =>
+    set((state: any) => ({ isMultiplayer: !state.isMultiplayer })),
 }));

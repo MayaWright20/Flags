@@ -117,7 +117,12 @@ export default function GuessFlagScreen() {
       setClearWrittenInput(true);
       nextQuestionHandler();
     }
-  }, [writtenAnswerCTATitle]);
+  }, [
+    writtenAnswerCTATitle,
+    correctAnswer,
+    nextQuestionHandler,
+    writtenAnswer,
+  ]);
 
   if (!allCountries) {
     return <ActivityLoading />;
