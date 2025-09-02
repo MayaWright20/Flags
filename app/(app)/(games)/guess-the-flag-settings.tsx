@@ -2,16 +2,9 @@ import CTA from '@/components/buttons/large-cta';
 import SwitchBtn from '@/components/buttons/switch';
 import TextInputComponent from '@/components/text-inputs/text-input';
 import useProfile from '@/hooks/useProfile';
-import { supabase } from '@/lib/supabase';
 import { useStore } from '@/store/store';
-import {
-  REALTIME_SUBSCRIBE_STATES,
-  RealtimeChannel,
-} from '@supabase/supabase-js';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
-
-const TABLE_NAME = 'guess_the_flag_multiplayer';
 
 export default function GuessTheFlagSettingScreen() {
   const { isGuessTheFlagWriteAnswer, setIsGuessTheFlagWriteAnswer } =
@@ -24,8 +17,11 @@ export default function GuessTheFlagSettingScreen() {
   const playerName = useStore((state: any) => state.playerName);
   const players = useStore((state: any) => state.players);
   const setPlayers = useStore((state: any) => state.setPlayers);
-
-  const channelRef = useRef<RealtimeChannel | null>(null);
+  const setChannelRef = useStore((state: any) => state.setChannelRef);
+  const teardownChannel = useStore((state: any) => state.teardownChannel);
+  const createRealTimeSubscription = useStore(
+    (state: any) => state.createRealTimeSubscription
+  );
 
   const isValidRoomName = useMemo(
     () => roomName.trim() !== '' && roomName.length >= 4,
@@ -36,105 +32,33 @@ export default function GuessTheFlagSettingScreen() {
     [playerName]
   );
 
-  const userStatus = {
-    user: playerName || 'anon',
-    online_at: new Date().toISOString(),
-  };
-
   useEffect(() => {
     if (isMultiplayer) {
       setPlayers(null);
     }
-  }, [isMultiplayer]);
+  }, [isMultiplayer, setPlayers]);
 
-  // helper: safely close the current channel
-  const teardownChannel = async () => {
-    try {
-      if (channelRef.current) {
-        // stop sending presence
-        await channelRef.current.untrack?.();
-        // unsubscribe from realtime
-        channelRef.current.unsubscribe();
-      }
-    } finally {
-      channelRef.current = null;
-    }
-  };
-
-  const realTimeSubscription = (room: string, displayName: string) => {
-    // set a stable presence key for this user (recommended)
-    const channel = supabase.channel(room, {
-      config: {
-        presence: { key: displayName }, // e.g., user id
-      },
-    });
-
-    // presence events
-    channel
-      .on('presence', { event: 'sync' }, () => {
-        const newState = channel.presenceState();
-        console.log('presence:sync', newState);
-        setPlayers(Object.keys(newState));
-      })
-      .on('presence', { event: 'join' }, ({ key, newPresences }) => {
-        console.log('presence:join', key, newPresences);
-      })
-      .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
-        console.log('presence:leave', key, leftPresences);
-        setPlayers(
-          (current) => current && [...current].filter((item) => item === key)
-        );
-      });
-
-    // postgres changes (filter by room if you have a room column)
-    channel.on(
-      'postgres_changes',
-      {
-        event: '*',
-        schema: 'public',
-        table: TABLE_NAME,
-        filter: `room_playerName=eq.${room}`,
-      },
-      (payload) => {
-        console.log('db change', payload);
-      }
-    );
-
-    // single subscribe, then track presence
-    channel.subscribe(async (status) => {
-      if (status !== REALTIME_SUBSCRIBE_STATES.SUBSCRIBED) return;
-      console.log('Realtime connection established');
-      const trackRes = await channel.track(userStatus);
-      console.log('track result', trackRes);
-    });
-
-    return channel;
-  };
-
-  // Start / join the multiplayer room
   const onPressMultiplayer = async () => {
-    // guard
     if (!isValidRoomName || !isValidName) return;
 
-    // if we already have a channel, reset it first
     await teardownChannel();
 
-    channelRef.current = realTimeSubscription(
+    const channel = createRealTimeSubscription(
       roomName.trim(),
       playerName.trim()
     );
+
+    setChannelRef(channel);
   };
 
-  // Clean up when toggling multiplayer off, or when component unmounts
   useEffect(() => {
     if (!isMultiplayer) {
-      // turn off realtime when user leaves multiplayer mode
       teardownChannel();
     }
     return () => {
       teardownChannel();
     };
-  }, [isMultiplayer]);
+  }, [isMultiplayer, teardownChannel]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -167,18 +91,20 @@ export default function GuessTheFlagSettingScreen() {
               placeholder={'Name'}
               borderColor={isValidName ? '#3bea06' : '#767577'}
               onChangeText={setPlayerName}
-              value={playerName}
+              inputValue={playerName}
               editable={!(isMultiplayer && players && players.length >= 2)}
             />
             <TextInputComponent
               placeholder={'Room playerName'}
               borderColor={isValidRoomName ? '#3bea06' : '#767577'}
               onChangeText={setRoomName}
-              value={roomName}
+              inputValue={roomName}
               editable={!(isMultiplayer && players && players.length >= 2)}
             />
             {players &&
-              players.map((item, index) => <Text key={index}>{item}</Text>)}
+              players.map((item: string, index: number) => (
+                <Text key={index}>{item}</Text>
+              ))}
             <CTA
               disabled={
                 !isValidRoomName ||
