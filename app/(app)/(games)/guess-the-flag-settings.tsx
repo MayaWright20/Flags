@@ -8,7 +8,7 @@ import {
   REALTIME_SUBSCRIBE_STATES,
   RealtimeChannel,
 } from '@supabase/supabase-js';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
 const TABLE_NAME = 'guess_the_flag_multiplayer';
@@ -18,24 +18,26 @@ export default function GuessTheFlagSettingScreen() {
     useProfile();
   const isMultiplayer = useStore((state: any) => state.isMultiplayer);
   const setMultiplayer = useStore((state: any) => state.setMultiplayer);
+  const roomName = useStore((state: any) => state.roomName);
+  const setRoomName = useStore((state: any) => state.setRoomName);
+  const setPlayerName = useStore((state: any) => state.setPlayerName);
+  const playerName = useStore((state: any) => state.playerName);
+  const players = useStore((state: any) => state.players);
+  const setPlayers = useStore((state: any) => state.setPlayers);
 
   const channelRef = useRef<RealtimeChannel | null>(null);
-
-  const [roomName, setRoomName] = useState('');
-  const [name, setName] = useState('');
-  const [players, setPlayers] = useState<string[] | null>(null);
 
   const isValidRoomName = useMemo(
     () => roomName.trim() !== '' && roomName.length >= 4,
     [roomName]
   );
   const isValidName = useMemo(
-    () => name.trim() !== '' && name.length >= 2,
-    [name]
+    () => playerName.trim() !== '' && playerName.length >= 2,
+    [playerName]
   );
 
   const userStatus = {
-    user: name || 'anon',
+    user: playerName || 'anon',
     online_at: new Date().toISOString(),
   };
 
@@ -91,7 +93,7 @@ export default function GuessTheFlagSettingScreen() {
         event: '*',
         schema: 'public',
         table: TABLE_NAME,
-        filter: `room_name=eq.${room}`,
+        filter: `room_playerName=eq.${room}`,
       },
       (payload) => {
         console.log('db change', payload);
@@ -117,7 +119,10 @@ export default function GuessTheFlagSettingScreen() {
     // if we already have a channel, reset it first
     await teardownChannel();
 
-    channelRef.current = realTimeSubscription(roomName.trim(), name.trim());
+    channelRef.current = realTimeSubscription(
+      roomName.trim(),
+      playerName.trim()
+    );
   };
 
   // Clean up when toggling multiplayer off, or when component unmounts
@@ -161,12 +166,12 @@ export default function GuessTheFlagSettingScreen() {
             <TextInputComponent
               placeholder={'Name'}
               borderColor={isValidName ? '#3bea06' : '#767577'}
-              onChangeText={setName}
-              value={name}
+              onChangeText={setPlayerName}
+              value={playerName}
               editable={!(isMultiplayer && players && players.length >= 2)}
             />
             <TextInputComponent
-              placeholder={'Room name'}
+              placeholder={'Room playerName'}
               borderColor={isValidRoomName ? '#3bea06' : '#767577'}
               onChangeText={setRoomName}
               value={roomName}

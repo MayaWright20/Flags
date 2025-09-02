@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 
 export const useStore = create((set) => ({
-  // Auth related state
   authCTATitle: 'Sign up',
   setAuthCTATitle: (title: string) => set(() => ({ authCTATitle: title })),
   isAuthCTADisabled: false,
@@ -23,7 +22,7 @@ export const useStore = create((set) => ({
       isAuthLoginRoute: null,
     })),
   formData: null,
-  setFormData: (formData: any) => set((state: any) => ({ formData: formData })),
+  setFormData: (formData: any) => set((state: any) => ({ formData })),
   favourites: [] as string[],
   setStoreFavourites: (favouriteItems: string[]) =>
     set(() => ({ favourites: favouriteItems })),
@@ -33,4 +32,10 @@ export const useStore = create((set) => ({
   isMultiplayer: false,
   setMultiplayer: () =>
     set((state: any) => ({ isMultiplayer: !state.isMultiplayer })),
+  roomName: '',
+  setRoomName: (roomName: string) => set((state: any) => ({ roomName })),
+  playerName: '',
+  setPlayerName: (playerName: string) => set((state: any) => ({ playerName })),
+  players: null,
+  setPlayers: (players: string[] | null) => set((state: any) => ({ players })),
 }));
