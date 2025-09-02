@@ -48,6 +48,9 @@ export const useStore = create((set, get) => ({
   channelRef: null,
   setChannelRef: (channel: RealtimeChannel | null) =>
     set(() => ({ channelRef: channel })),
+  gameStartReceived: false,
+  setGameStartReceived: (value: boolean) =>
+    set(() => ({ gameStartReceived: value })),
   teardownChannel: async () => {
     set((state: any) => {
       const channel = state.channelRef;
@@ -71,6 +74,7 @@ export const useStore = create((set, get) => ({
     const channel = supabase.channel(room, {
       config: {
         presence: { key: displayName }, // e.g., user id
+        broadcast: { self: true }, // receive your own broadcasts
       },
     });
 
@@ -107,6 +111,12 @@ export const useStore = create((set, get) => ({
       }
     );
 
+    // Listen for broadcast events (like game_start)
+    channel.on('broadcast', { event: 'game_start' }, (payload) => {
+      console.log('Game start broadcast received:', payload);
+      set({ gameStartReceived: true });
+    });
+
     // single subscribe, then track presence
     channel.subscribe(async (status) => {
       if (status !== REALTIME_SUBSCRIBE_STATES.SUBSCRIBED) return;
@@ -116,5 +126,23 @@ export const useStore = create((set, get) => ({
     });
 
     return channel;
+  },
+
+  // Broadcast game start to all players in the room
+  broadcastGameStart: () => {
+    const state = get() as any;
+    const channel = state.channelRef;
+
+    if (channel) {
+      // Send a broadcast message to all connected clients
+      channel.send({
+        type: 'broadcast',
+        event: 'game_start',
+        payload: {
+          startedBy: state.playerName,
+          timestamp: new Date().toISOString(),
+        },
+      });
+    }
   },
 }));

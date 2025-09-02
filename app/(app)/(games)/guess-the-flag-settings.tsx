@@ -3,6 +3,7 @@ import SwitchBtn from '@/components/buttons/switch';
 import TextInputComponent from '@/components/text-inputs/text-input';
 import useProfile from '@/hooks/useProfile';
 import { useStore } from '@/store/store';
+import { router } from 'expo-router';
 import { useEffect, useMemo } from 'react';
 import { Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
@@ -22,6 +23,11 @@ export default function GuessTheFlagSettingScreen() {
   const createRealTimeSubscription = useStore(
     (state: any) => state.createRealTimeSubscription
   );
+  const broadcastGameStart = useStore((state: any) => state.broadcastGameStart);
+  const gameStartReceived = useStore((state: any) => state.gameStartReceived);
+  const setGameStartReceived = useStore(
+    (state: any) => state.setGameStartReceived
+  );
 
   const isValidRoomName = useMemo(
     () => roomName.trim() !== '' && roomName.length >= 4,
@@ -31,12 +37,6 @@ export default function GuessTheFlagSettingScreen() {
     () => playerName.trim() !== '' && playerName.length >= 2,
     [playerName]
   );
-
-  useEffect(() => {
-    if (isMultiplayer) {
-      setPlayers(null);
-    }
-  }, [isMultiplayer, setPlayers]);
 
   const onPressMultiplayer = async () => {
     if (!isValidRoomName || !isValidName) return;
@@ -50,6 +50,23 @@ export default function GuessTheFlagSettingScreen() {
 
     setChannelRef(channel);
   };
+
+  const startGameHandler = () => {
+    // Broadcast game start to all players in the room
+    broadcastGameStart();
+    // Navigate to the game screen
+    router.navigate('/guess-the-flag');
+  };
+
+  // Navigate when game start is received
+  useEffect(() => {
+    if (gameStartReceived) {
+      // Reset the flag so we don't navigate again if this component re-renders
+      setGameStartReceived(false);
+      // Navigate to the game screen
+      router.navigate('/guess-the-flag');
+    }
+  }, [gameStartReceived, setGameStartReceived]);
 
   useEffect(() => {
     if (!isMultiplayer) {
@@ -95,7 +112,7 @@ export default function GuessTheFlagSettingScreen() {
               editable={!(isMultiplayer && players && players.length >= 2)}
             />
             <TextInputComponent
-              placeholder={'Room playerName'}
+              placeholder={'Room name'}
               borderColor={isValidRoomName ? '#3bea06' : '#767577'}
               onChangeText={setRoomName}
               inputValue={roomName}
@@ -114,7 +131,11 @@ export default function GuessTheFlagSettingScreen() {
               title={
                 players && players.length >= 1 ? 'Start Game' : 'Join Room'
               }
-              onPress={onPressMultiplayer}
+              onPress={
+                players && players.length >= 1
+                  ? startGameHandler
+                  : onPressMultiplayer
+              }
             />
           </>
         )}

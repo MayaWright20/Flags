@@ -7,6 +7,7 @@ import { SHADOW } from '@/constants/styles';
 import useCountries from '@/hooks/useCountries';
 import useProfile from '@/hooks/useProfile';
 import { countries } from '@/lib/country-codes';
+import { useStore } from '@/store/store';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -24,6 +25,8 @@ import ConfettiCannon from 'react-native-confetti-cannon';
 export default function GuessFlagScreen() {
   const { allCountries } = useCountries();
   const { isGuessTheFlagWriteAnswer } = useProfile();
+
+  const isMultiplayer = useStore((state: any) => state.isMultiplayer);
 
   const allCountriesCount = useMemo(
     () => allCountries && allCountries.length,
@@ -216,6 +219,7 @@ export default function GuessFlagScreen() {
                 />
               </>
             )}
+            {/* {!isMultiplayer && ( */}
             <TouchableOpacity
               disabled={!showAnswer}
               style={[
@@ -232,6 +236,7 @@ export default function GuessFlagScreen() {
                 {isGuessTheFlagWriteAnswer ? writtenAnswerCTATitle : 'Continue'}
               </Text>
             </TouchableOpacity>
+            {/* )} */}
           </View>
         </SafeAreaView>
       </ScrollView>
