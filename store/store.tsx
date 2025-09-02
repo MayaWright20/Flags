@@ -51,6 +51,12 @@ export const useStore = create((set, get) => ({
   gameStartReceived: false,
   setGameStartReceived: (value: boolean) =>
     set(() => ({ gameStartReceived: value })),
+  sharedRandomInts: null,
+  setSharedRandomInts: (randomInts: number[] | null) =>
+    set(() => ({ sharedRandomInts: randomInts })),
+  sharedCorrectAnswerInt: null,
+  setSharedCorrectAnswerInt: (correctAnswerInt: number | null) =>
+    set(() => ({ sharedCorrectAnswerInt: correctAnswerInt })),
   teardownChannel: async () => {
     set((state: any) => {
       const channel = state.channelRef;
@@ -114,7 +120,30 @@ export const useStore = create((set, get) => ({
     // Listen for broadcast events (like game_start)
     channel.on('broadcast', { event: 'game_start' }, (payload) => {
       console.log('Game start broadcast received:', payload);
-      set({ gameStartReceived: true });
+
+      // Extract the random integers and correct answer index from the payload
+      const { randomInts, correctAnswerInt } = payload.payload;
+
+      // Store them in our state
+      set({
+        gameStartReceived: true,
+        sharedRandomInts: randomInts,
+        sharedCorrectAnswerInt: correctAnswerInt,
+      });
+    });
+
+    // Listen for next question broadcasts
+    channel.on('broadcast', { event: 'next_question' }, (payload) => {
+      console.log('Next question broadcast received:', payload);
+
+      // Extract the random integers and correct answer index from the payload
+      const { randomInts, correctAnswerInt } = payload.payload;
+
+      // Store them in our state
+      set({
+        sharedRandomInts: randomInts,
+        sharedCorrectAnswerInt: correctAnswerInt,
+      });
     });
 
     // single subscribe, then track presence
@@ -129,9 +158,15 @@ export const useStore = create((set, get) => ({
   },
 
   // Broadcast game start to all players in the room
-  broadcastGameStart: () => {
+  broadcastGameStart: (randomInts: number[], correctAnswerInt: number) => {
     const state = get() as any;
     const channel = state.channelRef;
+
+    // First, store the values in our own state
+    set({
+      sharedRandomInts: randomInts,
+      sharedCorrectAnswerInt: correctAnswerInt,
+    });
 
     if (channel) {
       // Send a broadcast message to all connected clients
@@ -141,6 +176,34 @@ export const useStore = create((set, get) => ({
         payload: {
           startedBy: state.playerName,
           timestamp: new Date().toISOString(),
+          randomInts,
+          correctAnswerInt,
+        },
+      });
+    }
+  },
+
+  // Broadcast a new question to all players
+  broadcastNextQuestion: (randomInts: number[], correctAnswerInt: number) => {
+    const state = get() as any;
+    const channel = state.channelRef;
+
+    // First, store the values in our own state
+    set({
+      sharedRandomInts: randomInts,
+      sharedCorrectAnswerInt: correctAnswerInt,
+    });
+
+    if (channel) {
+      // Send a broadcast message to all connected clients
+      channel.send({
+        type: 'broadcast',
+        event: 'next_question',
+        payload: {
+          sentBy: state.playerName,
+          timestamp: new Date().toISOString(),
+          randomInts,
+          correctAnswerInt,
         },
       });
     }

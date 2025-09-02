@@ -52,8 +52,20 @@ export default function GuessTheFlagSettingScreen() {
   };
 
   const startGameHandler = () => {
-    // Broadcast game start to all players in the room
-    broadcastGameStart();
+    // Generate random integers for the countries
+    // These will be shared among all players
+    const allCountriesCount = 250; // Approximate number of countries
+    const randomInts = [
+      Math.floor(Math.random() * allCountriesCount),
+      Math.floor(Math.random() * allCountriesCount),
+      Math.floor(Math.random() * allCountriesCount),
+      Math.floor(Math.random() * allCountriesCount),
+    ];
+    const correctAnswerInt = Math.floor(Math.random() * 4);
+
+    // Broadcast game start to all players in the room with the random integers
+    broadcastGameStart(randomInts, correctAnswerInt);
+
     // Navigate to the game screen
     router.navigate('/guess-the-flag');
   };

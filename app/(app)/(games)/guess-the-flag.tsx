@@ -27,6 +27,13 @@ export default function GuessFlagScreen() {
   const { isGuessTheFlagWriteAnswer } = useProfile();
 
   const isMultiplayer = useStore((state: any) => state.isMultiplayer);
+  const sharedRandomInts = useStore((state: any) => state.sharedRandomInts);
+  const sharedCorrectAnswerInt = useStore(
+    (state: any) => state.sharedCorrectAnswerInt
+  );
+  const broadcastNextQuestion = useStore(
+    (state: any) => state.broadcastNextQuestion
+  );
 
   const allCountriesCount = useMemo(
     () => allCountries && allCountries.length,
@@ -35,9 +42,13 @@ export default function GuessFlagScreen() {
 
   const explosion = useRef<any>(null);
 
-  const [randomInts, setRadomInts] = useState([0, 10, 130, 112]);
+  const [randomInts, setRadomInts] = useState(
+    isMultiplayer && sharedRandomInts ? sharedRandomInts : [0, 10, 130, 112]
+  );
   const [correctAnswerInt, setCorrectAnswerInt] = useState(
-    Math.floor(Math.random() * 4)
+    isMultiplayer && sharedCorrectAnswerInt !== null
+      ? sharedCorrectAnswerInt
+      : Math.floor(Math.random() * 4)
   );
   const [showAnswer, setShowAnswer] = useState(false);
   const [itemPressed, setItemPressed] = useState<null | number>(null);
@@ -46,6 +57,14 @@ export default function GuessFlagScreen() {
   const [clearWrittenInput, setClearWrittenInput] = useState(false);
   const [writtenAnswerCTATitle, setWrittenAnswerCTATitle] =
     useState('Reveal Answer');
+
+  // Update randomInts and correctAnswerInt when shared values change in multiplayer mode
+  useEffect(() => {
+    if (isMultiplayer && sharedRandomInts && sharedCorrectAnswerInt !== null) {
+      setRadomInts(sharedRandomInts);
+      setCorrectAnswerInt(sharedCorrectAnswerInt);
+    }
+  }, [isMultiplayer, sharedRandomInts, sharedCorrectAnswerInt]);
 
   let correctAnswer = '';
 
@@ -78,16 +97,26 @@ export default function GuessFlagScreen() {
     setItemPressed(null);
 
     if (allCountries) {
-      setRadomInts([
+      // Generate new random integers
+      const newRandomInts = [
         Math.floor(Math.random() * allCountriesCount),
         Math.floor(Math.random() * allCountriesCount),
         Math.floor(Math.random() * allCountriesCount),
         Math.floor(Math.random() * allCountriesCount),
-      ]);
+      ];
+      const newCorrectAnswerInt = Math.floor(Math.random() * 4);
+
+      // If in multiplayer mode, broadcast the new question to all players
+      if (isMultiplayer) {
+        broadcastNextQuestion(newRandomInts, newCorrectAnswerInt);
+      } else {
+        // Otherwise, just update locally
+        setRadomInts(newRandomInts);
+        setCorrectAnswerInt(newCorrectAnswerInt);
+      }
     }
-    setCorrectAnswerInt(Math.floor(Math.random() * 4));
     setShowAnswer(false);
-  }, [allCountries]);
+  }, [allCountries, allCountriesCount, isMultiplayer, broadcastNextQuestion]);
 
   const guessAnswerHandler = (isCorrect?: boolean, itemPress?: number) => {
     if (itemPress !== null && itemPress !== undefined) {
