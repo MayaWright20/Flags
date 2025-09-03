@@ -23,7 +23,7 @@ interface StoreState {
     isGuessTheFlagWriteAnswer: boolean
   ) => void;
   isMultiplayer: boolean;
-  setMultiplayer: (value: boolean) => void;
+  setIsMultiplayer: (value: boolean) => void;
   roomName: string;
   setRoomName: (roomName: string) => void;
   userName: string;
@@ -67,7 +67,7 @@ export const useStore = create<StoreState>((set, get) => ({
   setStoreIsGuessTheFlagWriteAnswer: (isGuessTheFlagWriteAnswer: boolean) =>
     set(() => ({ isGuessTheFlagWriteAnswer })),
   isMultiplayer: false,
-  setMultiplayer: (value: boolean) => set(() => ({ isMultiplayer: value })),
+  setIsMultiplayer: (value: boolean) => set(() => ({ isMultiplayer: value })),
   roomName: '',
   setRoomName: (roomName: string) => set(() => ({ roomName })),
   userName: '',

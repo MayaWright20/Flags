@@ -12,7 +12,7 @@ export default function GuessTheFlagSettingScreen() {
   const { isGuessTheFlagWriteAnswer, setIsGuessTheFlagWriteAnswer } =
     useProfile();
   const isMultiplayer = useStore((state: any) => state.isMultiplayer);
-  const setMultiplayer = useStore((state: any) => state.setMultiplayer);
+  const setIsMultiplayer = useStore((state: any) => state.setIsMultiplayer);
   const roomName = useStore((state: any) => state.roomName);
   const setRoomName = useStore((state: any) => state.setRoomName);
   const userName = useStore((state: any) => state.userName);
@@ -29,6 +29,22 @@ export default function GuessTheFlagSettingScreen() {
     [userName]
   );
 
+  function messageReceived(payload) {
+    console.log('message recieved', payload);
+  }
+
+  function leave() {
+    if (!roomName) return;
+    const room = supabase.channel(roomName);
+    room.on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+      console.log('leave', key, leftPresences);
+    });
+
+    setPlayers([]);
+    setUserName('');
+    setRoomName('');
+  }
+
   // TODO(MAYA) MOVE ONPRESSMULTIPLAYER ALL TO STORE
   const onPressMultiplayer = () => {
     const room = supabase.channel(roomName, {
@@ -36,6 +52,7 @@ export default function GuessTheFlagSettingScreen() {
         presence: {
           key: userName,
         },
+        broadcast: { ack: true },
       },
     });
 
@@ -46,14 +63,20 @@ export default function GuessTheFlagSettingScreen() {
 
         setPlayers(Object.keys(newState));
       })
+
       .on('presence', { event: 'join' }, ({ key, newPresences }) => {
         console.log('join', key, newPresences);
       })
-      .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
-        console.log('leave', key, leftPresences);
-        const updatedPlayers = players.filter((item: string) => item === key);
-        setPlayers(updatedPlayers);
+      .on('broadcast', { event: 'shout' }, (payload) => {
+        console.log('shout', payload);
+        messageReceived(payload);
       });
+    // .send({
+    //   type: 'broadcast',
+    //   event: 'shout',
+    //   payload: { message: 'Hi' },
+    // })
+    // .then((resp) => console.log(resp));
 
     room.subscribe(async (status) => {
       if (status !== 'SUBSCRIBED') {
@@ -63,11 +86,27 @@ export default function GuessTheFlagSettingScreen() {
         online: true,
         user: userName,
       });
+
+      room.send({
+        type: 'broadcast',
+        event: 'shout',
+        payload: { message: `${userName}ksljdalkfj` },
+      });
+
       console.log('presenceTrackStatus', presenceTrackStatus);
     });
   };
 
-  console.log('players', players);
+  // Subscribe to the Channel
+
+  // const leaveChannelRoom = () => {
+  //   const untrackPresence = async () => {
+  //     const presenceUntrackStatus = await roomName.untrack();
+  //     console.log('presenceUntrackStatus', presenceUntrackStatus);
+  //   };
+
+  //   untrackPresence();
+  // };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -85,8 +124,10 @@ export default function GuessTheFlagSettingScreen() {
         />
         <SwitchBtn
           onValueChange={(val: boolean) => {
-            setMultiplayer(val);
-            if (!val) setRoomName('');
+            if (val !== true) {
+              leave();
+            }
+            setIsMultiplayer(val);
           }}
           falseColor={'#767577'}
           trueColor={'#3bea06'}
@@ -111,15 +152,13 @@ export default function GuessTheFlagSettingScreen() {
                 inputValue={roomName}
                 editable={!(isMultiplayer && players && players.length >= 2)}
               />
-              <View style={styles.userNamesWrapper}>
-                <Text style={styles.title}>Players</Text>
-                {players &&
-                  players.map((item, index) => (
-                    <Text style={styles.userNames} key={index}>
-                      {item}
-                    </Text>
-                  ))}
-              </View>
+              <Text style={styles.title}>Players</Text>
+              {players &&
+                players.map((item, index) => (
+                  <Text style={styles.userNames} key={index}>
+                    {item}
+                  </Text>
+                ))}
               <CTA
                 disabled={!isValidRoomName}
                 title={'Start Game'}
