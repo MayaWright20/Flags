@@ -2,66 +2,60 @@ import CTA from '@/components/buttons/large-cta';
 import SwitchBtn from '@/components/buttons/switch';
 import TextInputComponent from '@/components/text-inputs/text-input';
 import useProfile from '@/hooks/useProfile';
-import { insertAnswer, insertWrittenAnswer } from '@/lib/channels/join-room';
 import { supabase } from '@/lib/supabase';
 import { useStore } from '@/store/store';
-import {
-  REALTIME_SUBSCRIBE_STATES,
-  RealtimeChannel,
-} from '@supabase/supabase-js';
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Image, SafeAreaView, StyleSheet, View } from 'react-native';
-
-const TABLE_NAME = 'guess_the_flag_multiplayer';
 
 export default function GuessTheFlagSettingScreen() {
   const { isGuessTheFlagWriteAnswer, setIsGuessTheFlagWriteAnswer } =
     useProfile();
   const isMultiplayer = useStore((state: any) => state.isMultiplayer);
   const setMultiplayer = useStore((state: any) => state.setMultiplayer);
-  const channelRef = useRef<RealtimeChannel>(null);
 
   const [roomName, setRoomName] = useState('');
-  const [name, setName] = useState('');
+  const [userName, setUserName] = useState('');
+  const [players, setPlayers] = useState<any>(null);
   const isValidRoomName = useMemo(
     () => roomName.trim() !== '' && roomName.length >= 4,
     [roomName]
   );
   const isValidName = useMemo(
-    () => name.trim() !== '' && name.length >= 2,
-    [name]
+    () => userName.trim() !== '' && userName.length >= 2,
+    [userName]
   );
 
-  const realTimeSubscription = (roomName: string) => {
-    const channel = supabase.channel(roomName);
-    channel
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: TABLE_NAME },
-        (payload) => {
-          console.log('change recieved', payload);
-        }
-      )
-      .subscribe((status) => {
-        if (status !== REALTIME_SUBSCRIBE_STATES.SUBSCRIBED) {
-          return;
-        } else {
-          console.log('Realtime connection established');
-        }
-      });
-    return channel;
-  };
+  const onPressMultiplayer = () => {
+    const room = supabase.channel(roomName, {
+      config: {
+        presence: {
+          key: userName,
+        },
+      },
+    });
 
-  const onPressMultiplayer = (roomName: string) => {
-    channelRef.current = realTimeSubscription(roomName);
-    if (isGuessTheFlagWriteAnswer) {
-      insertWrittenAnswer(roomName);
-    } else {
-      insertAnswer(true);
-    }
-    return () => {
-      channelRef.current?.unsubscribe();
-    };
+    room
+      .on('presence', { event: 'sync' }, () => {
+        const newState = room.presenceState();
+        console.log('sync', newState);
+      })
+      .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+        console.log('join', key, newPresences);
+        setPlayers((current: any) => current && [...current, userName]);
+      })
+      .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+        console.log('leave', key, leftPresences);
+      });
+
+    room
+      .subscribe(async (status) => {
+        if (status !== 'SUBSCRIBED') {
+          return;
+        }
+        const presenceTrackStatus = await room.track({ players });
+        console.log('presenceTrackStatus', presenceTrackStatus);
+      })
+      .subscribe();
   };
 
   return (
@@ -90,17 +84,19 @@ export default function GuessTheFlagSettingScreen() {
             <TextInputComponent
               placeholder={'Name'}
               borderColor={isValidName ? '#3bea06' : '#767577'}
-              onChangeText={setName}
+              onChangeText={setUserName}
             />
             <TextInputComponent
               placeholder={'Room name'}
               borderColor={isValidRoomName ? '#3bea06' : '#767577'}
               onChangeText={setRoomName}
             />
+            {/* {players &&
+              players.map((item, index) => <Text key={index}>{item}</Text>)} */}
             <CTA
               disabled={!isValidRoomName}
               title={'Start Game'}
-              onPress={() => onPressMultiplayer(roomName)}
+              onPress={onPressMultiplayer}
             />
           </>
         )}
