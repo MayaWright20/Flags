@@ -7,7 +7,6 @@ import { SHADOW } from '@/constants/styles';
 import useCountries from '@/hooks/useCountries';
 import useProfile from '@/hooks/useProfile';
 import { countries } from '@/lib/country-codes';
-import { useStore } from '@/store/store';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -26,15 +25,6 @@ export default function GuessFlagScreen() {
   const { allCountries } = useCountries();
   const { isGuessTheFlagWriteAnswer } = useProfile();
 
-  const isMultiplayer = useStore((state: any) => state.isMultiplayer);
-  const sharedRandomInts = useStore((state: any) => state.sharedRandomInts);
-  const sharedCorrectAnswerInt = useStore(
-    (state: any) => state.sharedCorrectAnswerInt
-  );
-  const broadcastNextQuestion = useStore(
-    (state: any) => state.broadcastNextQuestion
-  );
-
   const allCountriesCount = useMemo(
     () => allCountries && allCountries.length,
     [allCountries]
@@ -42,13 +32,9 @@ export default function GuessFlagScreen() {
 
   const explosion = useRef<any>(null);
 
-  const [randomInts, setRadomInts] = useState(
-    isMultiplayer && sharedRandomInts ? sharedRandomInts : [0, 10, 130, 112]
-  );
+  const [randomInts, setRadomInts] = useState([0, 10, 130, 112]);
   const [correctAnswerInt, setCorrectAnswerInt] = useState(
-    isMultiplayer && sharedCorrectAnswerInt !== null
-      ? sharedCorrectAnswerInt
-      : Math.floor(Math.random() * 4)
+    Math.floor(Math.random() * 4)
   );
   const [showAnswer, setShowAnswer] = useState(false);
   const [itemPressed, setItemPressed] = useState<null | number>(null);
@@ -57,14 +43,6 @@ export default function GuessFlagScreen() {
   const [clearWrittenInput, setClearWrittenInput] = useState(false);
   const [writtenAnswerCTATitle, setWrittenAnswerCTATitle] =
     useState('Reveal Answer');
-
-  // Update randomInts and correctAnswerInt when shared values change in multiplayer mode
-  useEffect(() => {
-    if (isMultiplayer && sharedRandomInts && sharedCorrectAnswerInt !== null) {
-      setRadomInts(sharedRandomInts);
-      setCorrectAnswerInt(sharedCorrectAnswerInt);
-    }
-  }, [isMultiplayer, sharedRandomInts, sharedCorrectAnswerInt]);
 
   let correctAnswer = '';
 
@@ -97,26 +75,16 @@ export default function GuessFlagScreen() {
     setItemPressed(null);
 
     if (allCountries) {
-      // Generate new random integers
-      const newRandomInts = [
+      setRadomInts([
         Math.floor(Math.random() * allCountriesCount),
         Math.floor(Math.random() * allCountriesCount),
         Math.floor(Math.random() * allCountriesCount),
         Math.floor(Math.random() * allCountriesCount),
-      ];
-      const newCorrectAnswerInt = Math.floor(Math.random() * 4);
-
-      // If in multiplayer mode, broadcast the new question to all players
-      if (isMultiplayer) {
-        broadcastNextQuestion(newRandomInts, newCorrectAnswerInt);
-      } else {
-        // Otherwise, just update locally
-        setRadomInts(newRandomInts);
-        setCorrectAnswerInt(newCorrectAnswerInt);
-      }
+      ]);
     }
+    setCorrectAnswerInt(Math.floor(Math.random() * 4));
     setShowAnswer(false);
-  }, [allCountries, allCountriesCount, isMultiplayer, broadcastNextQuestion]);
+  }, [allCountries]);
 
   const guessAnswerHandler = (isCorrect?: boolean, itemPress?: number) => {
     if (itemPress !== null && itemPress !== undefined) {
@@ -248,7 +216,6 @@ export default function GuessFlagScreen() {
                 />
               </>
             )}
-            {/* {!isMultiplayer && ( */}
             <TouchableOpacity
               disabled={!showAnswer}
               style={[
@@ -265,7 +232,6 @@ export default function GuessFlagScreen() {
                 {isGuessTheFlagWriteAnswer ? writtenAnswerCTATitle : 'Continue'}
               </Text>
             </TouchableOpacity>
-            {/* )} */}
           </View>
         </SafeAreaView>
       </ScrollView>
