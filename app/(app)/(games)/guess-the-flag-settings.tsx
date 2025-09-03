@@ -73,12 +73,16 @@ export default function GuessTheFlagSettingScreen() {
           label={'Write the answer'}
         />
         <SwitchBtn
-          onValueChange={setMultiplayer}
+          onValueChange={(val: boolean) => {
+            setMultiplayer(val);
+            if (!val) setRoomName('');
+          }}
           falseColor={'#767577'}
           trueColor={'#3bea06'}
           value={isMultiplayer}
           label={'Multiplayer'}
         />
+
         {isMultiplayer && (
           <>
             <TextInputComponent
@@ -90,6 +94,8 @@ export default function GuessTheFlagSettingScreen() {
               placeholder={'Room name'}
               borderColor={isValidRoomName ? '#3bea06' : '#767577'}
               onChangeText={setRoomName}
+              inputValue={roomName}
+              editable={!(isMultiplayer && players && players.length >= 2)}
             />
             {/* {players &&
               players.map((item, index) => <Text key={index}>{item}</Text>)} */}

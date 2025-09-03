@@ -6,7 +6,7 @@ export default function GamesLayout() {
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen
         name="guess-the-flag"
-        options={{ headerShown: true, headerTitle: 'Guess the Flag' }}
+        options={{ headerShown: false, headerTitle: 'Guess the Flag' }}
       />
       <Stack.Screen
         name="guess-the-flag-settings"
