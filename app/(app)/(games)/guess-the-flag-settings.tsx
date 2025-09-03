@@ -4,18 +4,22 @@ import TextInputComponent from '@/components/text-inputs/text-input';
 import useProfile from '@/hooks/useProfile';
 import { supabase } from '@/lib/supabase';
 import { useStore } from '@/store/store';
-import { useMemo, useState } from 'react';
-import { Image, SafeAreaView, StyleSheet, View } from 'react-native';
+import { useMemo } from 'react';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function GuessTheFlagSettingScreen() {
   const { isGuessTheFlagWriteAnswer, setIsGuessTheFlagWriteAnswer } =
     useProfile();
   const isMultiplayer = useStore((state: any) => state.isMultiplayer);
   const setMultiplayer = useStore((state: any) => state.setMultiplayer);
+  const roomName = useStore((state: any) => state.roomName);
+  const setRoomName = useStore((state: any) => state.setRoomName);
+  const userName = useStore((state: any) => state.userName);
+  const setUserName = useStore((state: any) => state.setUserName);
+  const players = useStore((state: any) => state.players);
+  const setPlayers = useStore((state: any) => state.setPlayers);
 
-  const [roomName, setRoomName] = useState('');
-  const [userName, setUserName] = useState('');
-  const [players, setPlayers] = useState<any>(null);
   const isValidRoomName = useMemo(
     () => roomName.trim() !== '' && roomName.length >= 4,
     [roomName]
@@ -25,6 +29,7 @@ export default function GuessTheFlagSettingScreen() {
     [userName]
   );
 
+  // TODO(MAYA) MOVE ONPRESSMULTIPLAYER ALL TO STORE
   const onPressMultiplayer = () => {
     const room = supabase.channel(roomName, {
       config: {
@@ -38,25 +43,31 @@ export default function GuessTheFlagSettingScreen() {
       .on('presence', { event: 'sync' }, () => {
         const newState = room.presenceState();
         console.log('sync', newState);
+
+        setPlayers(Object.keys(newState));
       })
       .on('presence', { event: 'join' }, ({ key, newPresences }) => {
         console.log('join', key, newPresences);
-        setPlayers((current: any) => current && [...current, userName]);
       })
       .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
         console.log('leave', key, leftPresences);
+        const updatedPlayers = players.filter((item: string) => item === key);
+        setPlayers(updatedPlayers);
       });
 
-    room
-      .subscribe(async (status) => {
-        if (status !== 'SUBSCRIBED') {
-          return;
-        }
-        const presenceTrackStatus = await room.track({ players });
-        console.log('presenceTrackStatus', presenceTrackStatus);
-      })
-      .subscribe();
+    room.subscribe(async (status) => {
+      if (status !== 'SUBSCRIBED') {
+        return;
+      }
+      const presenceTrackStatus = await room.track({
+        online: true,
+        user: userName,
+      });
+      console.log('presenceTrackStatus', presenceTrackStatus);
+    });
   };
+
+  console.log('players', players);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -84,27 +95,38 @@ export default function GuessTheFlagSettingScreen() {
         />
 
         {isMultiplayer && (
-          <>
-            <TextInputComponent
-              placeholder={'Name'}
-              borderColor={isValidName ? '#3bea06' : '#767577'}
-              onChangeText={setUserName}
-            />
-            <TextInputComponent
-              placeholder={'Room name'}
-              borderColor={isValidRoomName ? '#3bea06' : '#767577'}
-              onChangeText={setRoomName}
-              inputValue={roomName}
-              editable={!(isMultiplayer && players && players.length >= 2)}
-            />
-            {/* {players &&
-              players.map((item, index) => <Text key={index}>{item}</Text>)} */}
-            <CTA
-              disabled={!isValidRoomName}
-              title={'Start Game'}
-              onPress={onPressMultiplayer}
-            />
-          </>
+          <ScrollView contentContainerStyle={styles.scrollView}>
+            <View style={styles.scrollViewContents}>
+              <TextInputComponent
+                placeholder={'Name'}
+                borderColor={isValidName ? '#3bea06' : '#767577'}
+                onChangeText={setUserName}
+                inputValue={userName}
+                editable={!(isMultiplayer && players && players.length >= 2)}
+              />
+              <TextInputComponent
+                placeholder={'Room name'}
+                borderColor={isValidRoomName ? '#3bea06' : '#767577'}
+                onChangeText={setRoomName}
+                inputValue={roomName}
+                editable={!(isMultiplayer && players && players.length >= 2)}
+              />
+              <View style={styles.userNamesWrapper}>
+                <Text style={styles.title}>Players</Text>
+                {players &&
+                  players.map((item, index) => (
+                    <Text style={styles.userNames} key={index}>
+                      {item}
+                    </Text>
+                  ))}
+              </View>
+              <CTA
+                disabled={!isValidRoomName}
+                title={'Start Game'}
+                onPress={onPressMultiplayer}
+              />
+            </View>
+          </ScrollView>
         )}
       </View>
     </SafeAreaView>
@@ -119,12 +141,30 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    marginHorizontal: 10,
   },
   image: {
     width: '100%',
-    height: '30%',
-    marginVertical: 10,
+    height: '35%',
     marginBottom: 30,
+    alignSelf: 'center',
+    marginHorizontal: 10,
+  },
+  scrollView: {
+    marginHorizontal: 10,
+    paddingBottom: 100,
+  },
+  title: {
+    marginLeft: 10,
+    marginVertical: 15,
+    fontSize: 20,
+    fontWeight: '600',
+  },
+  userNames: {
+    marginLeft: 10,
+    fontSize: 18,
+    marginBottom: 10,
+  },
+  scrollViewContents: {
+    height: '100%',
   },
 });
