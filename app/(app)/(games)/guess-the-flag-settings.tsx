@@ -4,7 +4,7 @@ import TextInputComponent from '@/components/text-inputs/text-input';
 import useProfile from '@/hooks/useProfile';
 import { supabase } from '@/lib/supabase';
 import { useStore } from '@/store/store';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -33,6 +33,15 @@ export default function GuessTheFlagSettingScreen() {
     console.log('message recieved', payload);
   }
 
+  function joinRoom() {
+    if (!roomName) return;
+    const room = supabase.channel(roomName);
+
+    room.on('presence', { event: 'join' }, ({ key, newPresences }) => {
+      console.log('join', key, newPresences);
+    });
+  }
+
   function leave() {
     if (!roomName) return;
     const room = supabase.channel(roomName);
@@ -43,7 +52,31 @@ export default function GuessTheFlagSettingScreen() {
     setPlayers([]);
     setUserName('');
     setRoomName('');
+
+    room.on('presence', { event: 'sync' }, () => {
+      const newState = room.presenceState();
+      console.log('sync', newState);
+
+      setPlayers(Object.keys(newState));
+    });
   }
+
+  useEffect(() => {
+    if (!roomName) return;
+    const room = supabase.channel(roomName);
+    room.on('presence', { event: 'sync' }, () => {
+      const newState = room.presenceState();
+      console.log('sync', newState);
+
+      setPlayers(Object.keys(newState));
+    });
+  }, []);
+
+  // useEffect(() => {
+  //   if (!roomName) return;
+  //   const room = supabase.channel(roomName);
+
+  // }, [players, roomName, setPlayers]);
 
   // TODO(MAYA) MOVE ONPRESSMULTIPLAYER ALL TO STORE
   const onPressMultiplayer = () => {
@@ -56,21 +89,17 @@ export default function GuessTheFlagSettingScreen() {
       },
     });
 
-    room
-      .on('presence', { event: 'sync' }, () => {
-        const newState = room.presenceState();
-        console.log('sync', newState);
+    room.on('presence', { event: 'sync' }, () => {
+      const newState = room.presenceState();
+      console.log('sync', newState);
 
-        setPlayers(Object.keys(newState));
-      })
+      setPlayers(Object.keys(newState));
+    });
 
-      .on('presence', { event: 'join' }, ({ key, newPresences }) => {
-        console.log('join', key, newPresences);
-      })
-      .on('broadcast', { event: 'shout' }, (payload) => {
-        console.log('shout', payload);
-        messageReceived(payload);
-      });
+    room.on('broadcast', { event: 'shout' }, (payload) => {
+      console.log('shout', payload);
+      messageReceived(payload);
+    });
     // .send({
     //   type: 'broadcast',
     //   event: 'shout',
@@ -154,15 +183,23 @@ export default function GuessTheFlagSettingScreen() {
               />
               <Text style={styles.title}>Players</Text>
               {players &&
-                players.map((item, index) => (
+                players.map((item: string, index: number) => (
                   <Text style={styles.userNames} key={index}>
                     {item}
                   </Text>
                 ))}
               <CTA
                 disabled={!isValidRoomName}
-                title={'Start Game'}
-                onPress={onPressMultiplayer}
+                title={
+                  isMultiplayer && players && players.length >= 2
+                    ? 'Join Room'
+                    : 'Start Game'
+                }
+                onPress={
+                  isMultiplayer && players && players.length >= 2
+                    ? joinRoom
+                    : onPressMultiplayer
+                }
               />
             </View>
           </ScrollView>
