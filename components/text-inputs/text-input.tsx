@@ -20,7 +20,7 @@ export default function TextInputComponent({
   onChangeText,
   keyboardType,
   maxLength,
-  autoCapitalize,
+  autoCapitalize = 'none',
   errorState,
   errorMessage,
   isInputHidden,
