@@ -14,23 +14,31 @@ export default function useProfile() {
   const setStoreIsGuessTheFlagWriteAnswer = useStore(
     (state: any) => state.setStoreIsGuessTheFlagWriteAnswer
   );
+  const setFullName = useStore((state: any) => state.setFullName);
+  const fullName = useStore((state: any) => state.fullName);
 
   const getProfile = useCallback(async () => {
     try {
       const { data, error, status } = await supabase
         .from('profiles')
-        .select('favourites,  is_guess_the_flag_write_answer')
+        .select('favourites,  is_guess_the_flag_write_answer, full_name')
         .eq('id', session?.user.id)
         .single();
       if (error && status !== 406) throw error;
       if (data) {
         setStoreFavourites(data.favourites);
         setStoreIsGuessTheFlagWriteAnswer(data.is_guess_the_flag_write_answer);
+        setFullName(data.full_name);
       }
     } catch (error) {
       if (error instanceof Error) Alert.alert(error.message);
     }
-  }, [session?.user, setStoreFavourites, setStoreIsGuessTheFlagWriteAnswer]);
+  }, [
+    session?.user,
+    setStoreFavourites,
+    setStoreIsGuessTheFlagWriteAnswer,
+    setFullName,
+  ]);
 
   const updateProfile = useCallback(
     async ({
@@ -93,5 +101,6 @@ export default function useProfile() {
     getProfile,
     setIsGuessTheFlagWriteAnswer: guessTheFlagWriteAnswerHandler,
     isGuessTheFlagWriteAnswer,
+    fullName,
   };
 }

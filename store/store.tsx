@@ -1,4 +1,3 @@
-import { supabase } from '@/lib/supabase';
 import { create } from 'zustand';
 
 // Define the state interface
@@ -30,10 +29,8 @@ interface StoreState {
   setUserName: (userName: string) => void;
   players: string[];
   setPlayers: (players: string[] | []) => void;
-  roomChannel: any;
-  setRoomChannel: (channel: any) => void;
-  joinMultiplayerRoom: () => void;
-  leaveMultiplayerRoom: () => void;
+  fullName: string;
+  setFullName: (fullName: string) => void;
 }
 
 export const useStore = create<StoreState>((set, get) => ({
@@ -74,61 +71,6 @@ export const useStore = create<StoreState>((set, get) => ({
   setUserName: (userName: string) => set(() => ({ userName })),
   players: [],
   setPlayers: (players: string[] | []) => set(() => ({ players })),
-  roomChannel: null,
-  setRoomChannel: (roomChannel: any) => set(() => ({ roomChannel })),
-
-  joinMultiplayerRoom: () => {
-    const state = get();
-    const { roomName, userName, players } = state;
-
-    // Create the Supabase realtime channel
-    const room = supabase.channel(roomName, {
-      config: {
-        presence: {
-          key: userName,
-        },
-      },
-    });
-
-    // Setup event listeners
-    room
-      .on('presence', { event: 'sync' }, () => {
-        const newState = room.presenceState();
-        console.log('sync', newState);
-      })
-      .on('presence', { event: 'join' }, ({ key, newPresences }) => {
-        console.log('join', key, newPresences);
-        const updatedPlayers = [...players, userName];
-        set(() => ({ players: updatedPlayers }));
-      })
-      .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
-        console.log('leave', key, leftPresences);
-        const updatedPlayers = players.filter((item: string) => item === key);
-        set(() => ({ players: updatedPlayers }));
-      });
-
-    // Subscribe to the channel
-    room.subscribe(async (status) => {
-      if (status !== 'SUBSCRIBED') {
-        return;
-      }
-      const presenceTrackStatus = await room.track({
-        online: true,
-        user: userName,
-      });
-      console.log('presenceTrackStatus', presenceTrackStatus);
-    });
-
-    // Store the channel reference
-    set(() => ({ roomChannel: room }));
-  },
-
-  // Function to leave multiplayer room
-  leaveMultiplayerRoom: () => {
-    const { roomChannel } = get();
-    if (roomChannel) {
-      roomChannel.unsubscribe();
-      set(() => ({ roomChannel: null, players: [] }));
-    }
-  },
+  fullName: '',
+  setFullName: (fullName: string) => set(() => ({ fullName })),
 }));

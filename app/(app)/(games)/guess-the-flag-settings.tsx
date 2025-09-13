@@ -2,9 +2,9 @@ import CTA from '@/components/buttons/large-cta';
 import SwitchBtn from '@/components/buttons/switch';
 import TextInputComponent from '@/components/text-inputs/text-input';
 import useProfile from '@/hooks/useProfile';
-import { supabase } from '@/lib/supabase';
+import { useRealtimePresenceRoom } from '@/hooks/useRealTimePresenceRoom';
 import { useStore } from '@/store/store';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -28,85 +28,16 @@ export default function GuessTheFlagSettingScreen() {
     () => userName.trim() !== '' && userName.length >= 2,
     [userName]
   );
+  const { users } = useRealtimePresenceRoom(roomName);
 
-  function messageReceived(payload) {
-    console.log('message recieved', payload);
-  }
-
-  function leave() {
-    if (!roomName) return;
-    const room = supabase.channel(roomName);
-    room.on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
-      console.log('leave', key, leftPresences);
-    });
-
-    setPlayers([]);
-    setUserName('');
-    setRoomName('');
-  }
-
-  // TODO(MAYA) MOVE ONPRESSMULTIPLAYER ALL TO STORE
-  const onPressMultiplayer = () => {
-    const room = supabase.channel(roomName, {
-      config: {
-        presence: {
-          key: userName,
-        },
-        broadcast: { ack: true },
-      },
-    });
-
-    room
-      .on('presence', { event: 'sync' }, () => {
-        const newState = room.presenceState();
-        console.log('sync', newState);
-
-        setPlayers(Object.keys(newState));
-      })
-
-      .on('presence', { event: 'join' }, ({ key, newPresences }) => {
-        console.log('join', key, newPresences);
-      })
-      .on('broadcast', { event: 'shout' }, (payload) => {
-        console.log('shout', payload);
-        messageReceived(payload);
-      });
-    // .send({
-    //   type: 'broadcast',
-    //   event: 'shout',
-    //   payload: { message: 'Hi' },
-    // })
-    // .then((resp) => console.log(resp));
-
-    room.subscribe(async (status) => {
-      if (status !== 'SUBSCRIBED') {
-        return;
-      }
-      const presenceTrackStatus = await room.track({
-        online: true,
-        user: userName,
-      });
-
-      room.send({
-        type: 'broadcast',
-        event: 'shout',
-        payload: { message: `${userName}ksljdalkfj` },
-      });
-
-      console.log('presenceTrackStatus', presenceTrackStatus);
-    });
+  const joinRoom = () => {
+    setPlayers(users);
   };
 
-  // Subscribe to the Channel
-
-  // const leaveChannelRoom = () => {
-  //   const untrackPresence = async () => {
-  //     const presenceUntrackStatus = await roomName.untrack();
-  //     console.log('presenceUntrackStatus', presenceUntrackStatus);
-  //   };
-
-  //   untrackPresence();
-  // };
+  useEffect(() => {
+    if (!users) return;
+    setPlayers(users);
+  }, [users, setPlayers]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -125,7 +56,6 @@ export default function GuessTheFlagSettingScreen() {
         <SwitchBtn
           onValueChange={(val: boolean) => {
             if (val !== true) {
-              leave();
             }
             setIsMultiplayer(val);
           }}
@@ -154,15 +84,23 @@ export default function GuessTheFlagSettingScreen() {
               />
               <Text style={styles.title}>Players</Text>
               {players &&
-                players.map((item, index) => (
+                Object.values(players).map((item: any, index) => {
+                  return (
+                    <Text style={styles.userNames} key={index}>
+                      {item.name}
+                    </Text>
+                  );
+                })}
+              {/* {users &&
+                users.map((item: string, index: number) => (
                   <Text style={styles.userNames} key={index}>
                     {item}
                   </Text>
-                ))}
+                ))} */}
               <CTA
                 disabled={!isValidRoomName}
-                title={'Start Game'}
-                onPress={onPressMultiplayer}
+                title={'Join room'}
+                onPress={joinRoom}
               />
             </View>
           </ScrollView>
