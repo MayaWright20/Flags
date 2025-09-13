@@ -2,8 +2,9 @@ import CTA from '@/components/buttons/large-cta';
 import SwitchBtn from '@/components/buttons/switch';
 import TextInputComponent from '@/components/text-inputs/text-input';
 import useProfile from '@/hooks/useProfile';
+import { useRealtimePresenceRoom } from '@/hooks/useRealTimePresenceRoom';
 import { useStore } from '@/store/store';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -27,8 +28,16 @@ export default function GuessTheFlagSettingScreen() {
     () => userName.trim() !== '' && userName.length >= 2,
     [userName]
   );
+  const { users } = useRealtimePresenceRoom(roomName);
 
-  const joinRoom = () => {};
+  const joinRoom = () => {
+    setPlayers(users);
+  };
+
+  useEffect(() => {
+    if (!users) return;
+    setPlayers(users);
+  }, [users, setPlayers]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -75,11 +84,19 @@ export default function GuessTheFlagSettingScreen() {
               />
               <Text style={styles.title}>Players</Text>
               {players &&
-                players.map((item: string, index: number) => (
+                Object.values(players).map((item: any, index) => {
+                  return (
+                    <Text style={styles.userNames} key={index}>
+                      {item.name}
+                    </Text>
+                  );
+                })}
+              {/* {users &&
+                users.map((item: string, index: number) => (
                   <Text style={styles.userNames} key={index}>
                     {item}
                   </Text>
-                ))}
+                ))} */}
               <CTA
                 disabled={!isValidRoomName}
                 title={'Join room'}
