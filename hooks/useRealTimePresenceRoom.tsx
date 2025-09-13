@@ -9,8 +9,6 @@ export type RealtimeUser = {
 };
 
 export const useRealtimePresenceRoom = (roomName: string) => {
-  // const currentUserImage = useCurrentUserImage();
-  // const currentUserName = useCurrentUserName();
   const { favourites, fullName } = useProfile();
 
   const [users, setUsers] = useState<Record<string, RealtimeUser>>({});
