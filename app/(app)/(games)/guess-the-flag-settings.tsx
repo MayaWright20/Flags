@@ -91,12 +91,6 @@ export default function GuessTheFlagSettingScreen() {
                     </Text>
                   );
                 })}
-              {/* {users &&
-                users.map((item: string, index: number) => (
-                  <Text style={styles.userNames} key={index}>
-                    {item}
-                  </Text>
-                ))} */}
               <CTA
                 disabled={!isValidRoomName}
                 title={'Join room'}
