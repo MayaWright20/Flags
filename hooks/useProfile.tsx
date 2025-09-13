@@ -14,8 +14,8 @@ export default function useProfile() {
   const setStoreIsGuessTheFlagWriteAnswer = useStore(
     (state: any) => state.setStoreIsGuessTheFlagWriteAnswer
   );
-  const setFullName = useStore((state: any) => state.setFullName);
-  const fullName = useStore((state: any) => state.fullName);
+  const setGameName = useStore((state: any) => state.setGameName);
+  const gameName = useStore((state: any) => state.gameName);
 
   const getProfile = useCallback(async () => {
     try {
@@ -28,7 +28,7 @@ export default function useProfile() {
       if (data) {
         setStoreFavourites(data.favourites);
         setStoreIsGuessTheFlagWriteAnswer(data.is_guess_the_flag_write_answer);
-        setFullName(data.game_name);
+        setGameName(data.game_name);
       }
     } catch (error) {
       if (error instanceof Error) Alert.alert(error.message);
@@ -37,7 +37,7 @@ export default function useProfile() {
     session?.user,
     setStoreFavourites,
     setStoreIsGuessTheFlagWriteAnswer,
-    setFullName,
+    setGameName,
   ]);
 
   const updateProfile = useCallback(
@@ -101,6 +101,6 @@ export default function useProfile() {
     getProfile,
     setIsGuessTheFlagWriteAnswer: guessTheFlagWriteAnswerHandler,
     isGuessTheFlagWriteAnswer,
-    fullName,
+    gameName,
   };
 }

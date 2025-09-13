@@ -9,7 +9,7 @@ export type RealtimeUser = {
 };
 
 export const useRealtimePresenceRoom = (roomName: string) => {
-  const { favourites, fullName } = useProfile();
+  const { favourites, gameName } = useProfile();
 
   const [users, setUsers] = useState<Record<string, RealtimeUser>>({});
 
@@ -37,7 +37,7 @@ export const useRealtimePresenceRoom = (roomName: string) => {
         }
 
         await room.track({
-          name: fullName,
+          name: gameName,
           favourites,
         });
       });
@@ -45,7 +45,7 @@ export const useRealtimePresenceRoom = (roomName: string) => {
     return () => {
       room.unsubscribe();
     };
-  }, [roomName, fullName, favourites]);
+  }, [roomName, gameName, favourites]);
 
   return { users };
 };
