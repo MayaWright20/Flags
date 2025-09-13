@@ -30,7 +30,7 @@ export default function GuessTheFlagSettingScreen() {
   );
   const { users } = useRealtimePresenceRoom(roomName);
 
-  const joinRoom = () => {
+  const startGame = () => {
     // router.replace('/guess-the-flag');
   };
 
@@ -84,18 +84,30 @@ export default function GuessTheFlagSettingScreen() {
               />
               <Text style={styles.title}>Players</Text>
               {players &&
+                Object.values(players).map((item: any, index) => (
+                  <Text style={styles.userNames} key={index}>
+                    {item.name}
+                  </Text>
+                ))}
+              {players &&
                 Object.values(players).map((item: any, index) => {
-                  return (
-                    <Text style={styles.userNames} key={index}>
-                      {item.name}
-                    </Text>
-                  );
+                  if (item.name === userName && index === 0) {
+                    return (
+                      <CTA
+                        key={index}
+                        title="Start"
+                        onPress={startGame}
+                        disabled={players.length < 2}
+                      />
+                    );
+                  } else if (item.name === userName) {
+                    return (
+                      <Text style={styles.waitingText} key={index}>
+                        Waiting to start...
+                      </Text>
+                    );
+                  }
                 })}
-              <CTA
-                disabled={!isValidRoomName}
-                title={'Join room'}
-                onPress={joinRoom}
-              />
             </View>
           </ScrollView>
         )}
@@ -134,6 +146,12 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 18,
     marginBottom: 10,
+  },
+  waitingText: {
+    marginLeft: 10,
+    fontSize: 18,
+    textAlign: 'center',
+    marginVertical: 10,
   },
   scrollViewContents: {
     height: '100%',

@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import useProfile from './useProfile';
 
@@ -12,6 +13,10 @@ export const useRealtimePresenceRoom = (roomName: string) => {
   const { favourites, gameName } = useProfile();
 
   const [users, setUsers] = useState<Record<string, RealtimeUser>>({});
+
+  const navigate = () => {
+    router.replace('/guess-the-flag');
+  };
 
   useEffect(() => {
     const room = supabase.channel(roomName);
