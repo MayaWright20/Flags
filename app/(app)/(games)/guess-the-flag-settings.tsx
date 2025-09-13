@@ -31,7 +31,7 @@ export default function GuessTheFlagSettingScreen() {
   const { users } = useRealtimePresenceRoom(roomName);
 
   const joinRoom = () => {
-    setPlayers(users);
+    // router.replace('/guess-the-flag');
   };
 
   useEffect(() => {

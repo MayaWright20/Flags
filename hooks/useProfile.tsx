@@ -21,14 +21,14 @@ export default function useProfile() {
     try {
       const { data, error, status } = await supabase
         .from('profiles')
-        .select('favourites,  is_guess_the_flag_write_answer, full_name')
+        .select('favourites,  is_guess_the_flag_write_answer, game_name')
         .eq('id', session?.user.id)
         .single();
       if (error && status !== 406) throw error;
       if (data) {
         setStoreFavourites(data.favourites);
         setStoreIsGuessTheFlagWriteAnswer(data.is_guess_the_flag_write_answer);
-        setFullName(data.full_name);
+        setFullName(data.game_name);
       }
     } catch (error) {
       if (error instanceof Error) Alert.alert(error.message);
