@@ -3,13 +3,20 @@ import ActivityLoading from '@/components/loading/activity-loading';
 import TextInputComponent from '@/components/text-inputs/text-input';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { COLOURS } from '@/constants/colours';
+import { ANSWERS_LENGTH } from '@/constants/games';
 import { SHADOW } from '@/constants/styles';
 import useCountries from '@/hooks/useCountries';
 import useProfile from '@/hooks/useProfile';
+import { useRealtimePresenceRoom } from '@/hooks/useRealTimePresenceRoom';
 import { countries } from '@/lib/country-codes';
+import {
+  randomNumberGenerator,
+  randomNumbers,
+} from '@/lib/randomNumberGenerator';
+import { useStore } from '@/store/store';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   Image,
   SafeAreaView,
@@ -32,17 +39,38 @@ export default function GuessFlagScreen() {
 
   const explosion = useRef<any>(null);
 
-  const [randomInts, setRadomInts] = useState([0, 10, 130, 112]);
-  const [correctAnswerInt, setCorrectAnswerInt] = useState(
-    Math.floor(Math.random() * 4)
+  const roomName = useStore((state: any) => state.roomName);
+  const players = useStore((state: any) => state.players);
+  const correctAnswerInt = useStore((state: any) => state.correctAnswerInt);
+  const setCorrectAnswerInt = useStore(
+    (state: any) => state.setCorrectAnswerInt
   );
-  const [showAnswer, setShowAnswer] = useState(false);
-  const [itemPressed, setItemPressed] = useState<null | number>(null);
-  const [writtenAnswer, setWrittenAnswer] = useState('');
-  const [isWrittenInputEditable, setIsWrittenInputEditable] = useState(true);
-  const [clearWrittenInput, setClearWrittenInput] = useState(false);
-  const [writtenAnswerCTATitle, setWrittenAnswerCTATitle] =
-    useState('Reveal Answer');
+  const randomInts = useStore((state: any) => state.randomInts);
+  const setRadomInts = useStore((state: any) => state.setRadomInts);
+  const showAnswer = useStore((state: any) => state.showAnswer);
+  const setShowAnswer = useStore((state: any) => state.setShowAnswer);
+  const itemPressed = useStore((state: any) => state.itemPressed);
+  const setItemPressed = useStore((state: any) => state.setItemPressed);
+  const writtenAnswer = useStore((state: any) => state.writtenAnswer);
+  const setWrittenAnswer = useStore((state: any) => state.setWrittenAnswer);
+  const isWrittenInputEditable = useStore(
+    (state: any) => state.isWrittenInputEditable
+  );
+  const setIsWrittenInputEditable = useStore(
+    (state: any) => state.setIsWrittenInputEditable
+  );
+  const clearWrittenInput = useStore((state: any) => state.clearWrittenInput);
+  const setClearWrittenInput = useStore(
+    (state: any) => state.setClearWrittenInput
+  );
+  const writtenAnswerCTATitle = useStore(
+    (state: any) => state.writtenAnswerCTATitle
+  );
+  const setWrittenAnswerCTATitle = useStore(
+    (state: any) => state.setWrittenAnswerCTATitle
+  );
+
+  const { users } = useRealtimePresenceRoom(roomName);
 
   let correctAnswer = '';
 
@@ -75,14 +103,9 @@ export default function GuessFlagScreen() {
     setItemPressed(null);
 
     if (allCountries) {
-      setRadomInts([
-        Math.floor(Math.random() * allCountriesCount),
-        Math.floor(Math.random() * allCountriesCount),
-        Math.floor(Math.random() * allCountriesCount),
-        Math.floor(Math.random() * allCountriesCount),
-      ]);
+      setRadomInts(randomNumbers(ANSWERS_LENGTH, allCountriesCount));
     }
-    setCorrectAnswerInt(Math.floor(Math.random() * 4));
+    setCorrectAnswerInt(randomNumberGenerator(ANSWERS_LENGTH));
     setShowAnswer(false);
   }, [allCountries]);
 
@@ -140,6 +163,10 @@ export default function GuessFlagScreen() {
                     <TouchableOpacity onPress={settingsNavigator}>
                       <IconSymbol size={35} name={'gearshape'} color={'grey'} />
                     </TouchableOpacity>
+                    {players &&
+                      Object.values(players).map((item: any, index) => (
+                        <Text key={index}>{item.name}</Text>
+                      ))}
                     <FavouriteIcon
                       disabled={
                         (isWrittenInputEditable && isGuessTheFlagWriteAnswer) ||

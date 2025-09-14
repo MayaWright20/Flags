@@ -1,3 +1,8 @@
+import { ANSWERS_LENGTH } from '@/constants/games';
+import {
+  randomNumberGenerator,
+  randomNumbers,
+} from '@/lib/randomNumberGenerator';
 import { create } from 'zustand';
 
 interface StoreState {
@@ -27,6 +32,22 @@ interface StoreState {
   setPlayers: (players: string[] | []) => void;
   gameUserName: string;
   setGameUserName: (gameUserName: string) => void;
+  correctAnswerInt: number;
+  setCorrectAnswerInt: (correctAnswerInt: number) => void;
+  randomInts: number[];
+  setRadomInts: (randomInts: number[]) => void;
+  showAnswer: boolean;
+  setShowAnswer: (showRandomAnswer: boolean) => void;
+  itemPressed: null | number;
+  setItemPressed: (itemPressed: null | number) => void;
+  writtenAnswer: string;
+  setWrittenAnswer: (writtenAnswer: string) => void;
+  isWrittenInputEditable: boolean;
+  setIsWrittenInputEditable: (isWrittenInputEditable: boolean) => void;
+  clearWrittenInput: boolean;
+  setClearWrittenInput: (clearWrittenInput: boolean) => void;
+  writtenAnswerCTATitle: string;
+  setWrittenAnswerCTATitle: (writtenAnswerCTATitle: string) => void;
 }
 
 export const useStore = create<StoreState>((set, get) => ({
@@ -66,4 +87,24 @@ export const useStore = create<StoreState>((set, get) => ({
   setPlayers: (players: string[] | []) => set(() => ({ players })),
   gameUserName: '',
   setGameUserName: (gameUserName: string) => set(() => ({ gameUserName })),
+  correctAnswerInt: randomNumberGenerator(ANSWERS_LENGTH),
+  setCorrectAnswerInt: (correctAnswerInt: number) =>
+    set(() => ({ correctAnswerInt })),
+  randomInts: randomNumbers(4, 220),
+  setRadomInts: (randomInts: number[]) => set(() => ({ randomInts })),
+  showAnswer: false,
+  setShowAnswer: (showAnswer: boolean) => set(() => ({ showAnswer })),
+  itemPressed: null,
+  setItemPressed: (itemPressed: null | number) => set(() => ({ itemPressed })),
+  writtenAnswer: '',
+  setWrittenAnswer: (writtenAnswer: string) => set(() => ({ writtenAnswer })),
+  isWrittenInputEditable: true,
+  setIsWrittenInputEditable: (isWrittenInputEditable: boolean) =>
+    set(() => ({ isWrittenInputEditable })),
+  clearWrittenInput: false,
+  setClearWrittenInput: (clearWrittenInput: boolean) =>
+    set(() => ({ clearWrittenInput })),
+  writtenAnswerCTATitle: 'Reveal Answer',
+  setWrittenAnswerCTATitle: (writtenAnswerCTATitle: string) =>
+    set(() => ({ writtenAnswerCTATitle })),
 }));
