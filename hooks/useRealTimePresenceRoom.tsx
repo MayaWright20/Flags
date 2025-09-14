@@ -13,7 +13,6 @@ export const useRealtimePresenceRoom = (roomName: string) => {
   const { favourites, gameUserName } = useProfile();
 
   const [users, setUsers] = useState<Record<string, RealtimeUser>>({});
-  const [message, setMessage] = useState('hello');
   const [hasGameStarted, setHasGameStarted] = useState(false);
 
   function recieveMessage(payload: any) {
@@ -69,7 +68,7 @@ export const useRealtimePresenceRoom = (roomName: string) => {
     return () => {
       room.unsubscribe();
     };
-  }, [roomName, gameUserName, favourites, message, hasGameStarted]);
+  }, [roomName, gameUserName, favourites, hasGameStarted]);
 
-  return { users, setMessage, setHasGameStarted };
+  return { users, setHasGameStarted };
 };
