@@ -19,8 +19,6 @@ export default function GuessTheFlagSettingScreen() {
   const setIsMultiplayer = useStore((state: any) => state.setIsMultiplayer);
   const roomName = useStore((state: any) => state.roomName);
   const setRoomName = useStore((state: any) => state.setRoomName);
-  // const userName = useStore((state: any) => state.userName);
-  // const setUserName = useStore((state: any) => state.setUserName);
   const players = useStore((state: any) => state.players);
   const setPlayers = useStore((state: any) => state.setPlayers);
 

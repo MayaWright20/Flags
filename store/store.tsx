@@ -1,8 +1,6 @@
 import { create } from 'zustand';
 
-// Define the state interface
 interface StoreState {
-  // Auth related state
   authCTATitle: string;
   setAuthCTATitle: (title: string) => void;
   isAuthCTADisabled: boolean;
@@ -25,8 +23,6 @@ interface StoreState {
   setIsMultiplayer: (value: boolean) => void;
   roomName: string;
   setRoomName: (roomName: string) => void;
-  userName: string;
-  setUserName: (userName: string) => void;
   players: string[];
   setPlayers: (players: string[] | []) => void;
   gameUserName: string;
@@ -34,7 +30,6 @@ interface StoreState {
 }
 
 export const useStore = create<StoreState>((set, get) => ({
-  // Auth related state
   authCTATitle: 'Sign up',
   setAuthCTATitle: (title: string) => set(() => ({ authCTATitle: title })),
   isAuthCTADisabled: false,
@@ -67,8 +62,6 @@ export const useStore = create<StoreState>((set, get) => ({
   setIsMultiplayer: (value: boolean) => set(() => ({ isMultiplayer: value })),
   roomName: '',
   setRoomName: (roomName: string) => set(() => ({ roomName })),
-  userName: '',
-  setUserName: (userName: string) => set(() => ({ userName })),
   players: [],
   setPlayers: (players: string[] | []) => set(() => ({ players })),
   gameUserName: '',
