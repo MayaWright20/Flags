@@ -97,7 +97,7 @@ export default function GuessTheFlagSettingScreen() {
                     return (
                       <CTA
                         key={index}
-                        title="Start"
+                        title={'Start'}
                         onPress={startGame}
                         disabled={players.length < 2}
                       />

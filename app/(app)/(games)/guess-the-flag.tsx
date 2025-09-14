@@ -6,7 +6,9 @@ import { COLOURS } from '@/constants/colours';
 import { SHADOW } from '@/constants/styles';
 import useCountries from '@/hooks/useCountries';
 import useProfile from '@/hooks/useProfile';
+import { useRealtimePresenceRoom } from '@/hooks/useRealTimePresenceRoom';
 import { countries } from '@/lib/country-codes';
+import { useStore } from '@/store/store';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -24,6 +26,11 @@ import ConfettiCannon from 'react-native-confetti-cannon';
 export default function GuessFlagScreen() {
   const { allCountries } = useCountries();
   const { isGuessTheFlagWriteAnswer } = useProfile();
+
+  const roomName = useStore((state: any) => state.roomName);
+  const players = useStore((state: any) => state.players);
+
+  const { users } = useRealtimePresenceRoom(roomName);
 
   const allCountriesCount = useMemo(
     () => allCountries && allCountries.length,
@@ -140,6 +147,10 @@ export default function GuessFlagScreen() {
                     <TouchableOpacity onPress={settingsNavigator}>
                       <IconSymbol size={35} name={'gearshape'} color={'grey'} />
                     </TouchableOpacity>
+                    {players &&
+                      Object.values(players).map((item: any, index) => (
+                        <Text key={index}>{item.name}</Text>
+                      ))}
                     <FavouriteIcon
                       disabled={
                         (isWrittenInputEditable && isGuessTheFlagWriteAnswer) ||

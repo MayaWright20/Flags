@@ -61,7 +61,9 @@ export const useRealtimePresenceRoom = (roomName: string) => {
         room.send({
           type: 'broadcast',
           event: 'shout',
-          payload: { hasGameStarted: hasGameStarted },
+          payload: {
+            hasGameStarted: hasGameStarted,
+          },
         });
       });
 
@@ -70,5 +72,5 @@ export const useRealtimePresenceRoom = (roomName: string) => {
     };
   }, [roomName, gameUserName, favourites, hasGameStarted]);
 
-  return { users, setHasGameStarted };
+  return { users, setHasGameStarted, hasGameStarted };
 };
