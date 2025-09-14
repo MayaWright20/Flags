@@ -29,8 +29,8 @@ interface StoreState {
   setUserName: (userName: string) => void;
   players: string[];
   setPlayers: (players: string[] | []) => void;
-  gameName: string;
-  setGameName: (gameName: string) => void;
+  gameUserName: string;
+  setGameUserName: (gameUserName: string) => void;
 }
 
 export const useStore = create<StoreState>((set, get) => ({
@@ -71,6 +71,6 @@ export const useStore = create<StoreState>((set, get) => ({
   setUserName: (userName: string) => set(() => ({ userName })),
   players: [],
   setPlayers: (players: string[] | []) => set(() => ({ players })),
-  gameName: '',
-  setGameName: (gameName: string) => set(() => ({ gameName })),
+  gameUserName: '',
+  setGameUserName: (gameUserName: string) => set(() => ({ gameUserName })),
 }));

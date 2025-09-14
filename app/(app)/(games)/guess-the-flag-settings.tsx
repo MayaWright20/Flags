@@ -9,14 +9,18 @@ import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function GuessTheFlagSettingScreen() {
-  const { isGuessTheFlagWriteAnswer, setIsGuessTheFlagWriteAnswer } =
-    useProfile();
+  const {
+    isGuessTheFlagWriteAnswer,
+    setIsGuessTheFlagWriteAnswer,
+    setGameUserName,
+    gameUserName,
+  } = useProfile();
   const isMultiplayer = useStore((state: any) => state.isMultiplayer);
   const setIsMultiplayer = useStore((state: any) => state.setIsMultiplayer);
   const roomName = useStore((state: any) => state.roomName);
   const setRoomName = useStore((state: any) => state.setRoomName);
-  const userName = useStore((state: any) => state.userName);
-  const setUserName = useStore((state: any) => state.setUserName);
+  // const userName = useStore((state: any) => state.userName);
+  // const setUserName = useStore((state: any) => state.setUserName);
   const players = useStore((state: any) => state.players);
   const setPlayers = useStore((state: any) => state.setPlayers);
 
@@ -25,8 +29,8 @@ export default function GuessTheFlagSettingScreen() {
     [roomName]
   );
   const isValidName = useMemo(
-    () => userName.trim() !== '' && userName.length >= 2,
-    [userName]
+    () => gameUserName.trim() !== '' && gameUserName.length >= 2,
+    [gameUserName]
   );
   const { users } = useRealtimePresenceRoom(roomName);
 
@@ -71,8 +75,8 @@ export default function GuessTheFlagSettingScreen() {
               <TextInputComponent
                 placeholder={'Name'}
                 borderColor={isValidName ? '#3bea06' : '#767577'}
-                onChangeText={setUserName}
-                inputValue={userName}
+                onChangeText={setGameUserName}
+                inputValue={gameUserName}
                 editable={!(isMultiplayer && players && players.length >= 2)}
               />
               <TextInputComponent
@@ -91,7 +95,7 @@ export default function GuessTheFlagSettingScreen() {
                 ))}
               {players &&
                 Object.values(players).map((item: any, index) => {
-                  if (item.name === userName && index === 0) {
+                  if (item.name === gameUserName && index === 0) {
                     return (
                       <CTA
                         key={index}
@@ -100,7 +104,7 @@ export default function GuessTheFlagSettingScreen() {
                         disabled={players.length < 2}
                       />
                     );
-                  } else if (item.name === userName) {
+                  } else if (item.name === gameUserName) {
                     return (
                       <Text style={styles.waitingText} key={index}>
                         Waiting to start...
