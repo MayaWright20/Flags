@@ -13,13 +13,21 @@ export const useRealtimePresenceRoom = (roomName: string) => {
   const { favourites, gameUserName } = useProfile();
 
   const [users, setUsers] = useState<Record<string, RealtimeUser>>({});
+  const [message, setMessage] = useState('hello');
+  const [hasGameStarted, setHasGameStarted] = useState(false);
 
-  const navigate = () => {
-    router.replace('/guess-the-flag');
-  };
+  function recieveMessage(payload: any) {
+    if (payload.payload.hasGameStarted) {
+      router.replace('/guess-the-flag');
+    }
+  }
 
   useEffect(() => {
-    const room = supabase.channel(roomName);
+    const room = supabase.channel(roomName, {
+      config: {
+        broadcast: { self: true },
+      },
+    });
 
     room
       .on('presence', { event: 'sync' }, () => {
@@ -36,6 +44,11 @@ export const useRealtimePresenceRoom = (roomName: string) => {
         ) as Record<string, RealtimeUser>;
         setUsers(newUsers);
       })
+      .on(
+        'broadcast',
+        { event: 'shout' }, // Listen for "shout". Can be "*" to listen to all events
+        (payload) => recieveMessage(payload)
+      )
       .subscribe(async (status) => {
         if (status !== 'SUBSCRIBED') {
           return;
@@ -45,12 +58,18 @@ export const useRealtimePresenceRoom = (roomName: string) => {
           name: gameUserName,
           favourites,
         });
+
+        room.send({
+          type: 'broadcast',
+          event: 'shout',
+          payload: { hasGameStarted: hasGameStarted },
+        });
       });
 
     return () => {
       room.unsubscribe();
     };
-  }, [roomName, gameUserName, favourites]);
+  }, [roomName, gameUserName, favourites, message, hasGameStarted]);
 
-  return { users };
+  return { users, setMessage, setHasGameStarted };
 };
