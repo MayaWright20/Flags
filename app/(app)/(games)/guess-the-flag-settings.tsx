@@ -30,13 +30,10 @@ export default function GuessTheFlagSettingScreen() {
     () => gameUserName.trim() !== '' && gameUserName.length >= 2,
     [gameUserName]
   );
-  const { users, setMessage, setHasGameStarted } =
-    useRealtimePresenceRoom(roomName);
+  const { users, setHasGameStarted } = useRealtimePresenceRoom(roomName);
 
   const startGame = () => {
     setHasGameStarted(true);
-    console.log('start');
-    setMessage('kjaslkdfjlkjal');
   };
 
   useEffect(() => {
