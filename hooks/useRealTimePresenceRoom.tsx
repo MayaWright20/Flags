@@ -1,5 +1,4 @@
 import { supabase } from '@/lib/supabase';
-import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import useProfile from './useProfile';
 
@@ -13,10 +12,11 @@ export const useRealtimePresenceRoom = (roomName: string) => {
   const { favourites, gameUserName } = useProfile();
 
   const [users, setUsers] = useState<Record<string, RealtimeUser>>({});
+  const [message, setMessage] = useState('hello');
 
-  const navigate = () => {
-    router.replace('/guess-the-flag');
-  };
+  function recieveMessage(payload) {
+    console.log('recieve', payload);
+  }
 
   useEffect(() => {
     const room = supabase.channel(roomName);
@@ -36,6 +36,11 @@ export const useRealtimePresenceRoom = (roomName: string) => {
         ) as Record<string, RealtimeUser>;
         setUsers(newUsers);
       })
+      .on(
+        'broadcast',
+        { event: 'shout' }, // Listen for "shout". Can be "*" to listen to all events
+        (payload) => recieveMessage(payload)
+      )
       .subscribe(async (status) => {
         if (status !== 'SUBSCRIBED') {
           return;
@@ -45,12 +50,18 @@ export const useRealtimePresenceRoom = (roomName: string) => {
           name: gameUserName,
           favourites,
         });
+
+        room.send({
+          type: 'broadcast',
+          event: 'shout',
+          payload: { message: message },
+        });
       });
 
     return () => {
       room.unsubscribe();
     };
-  }, [roomName, gameUserName, favourites]);
+  }, [roomName, gameUserName, favourites, message]);
 
-  return { users };
+  return { users, setMessage };
 };

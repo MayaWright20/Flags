@@ -30,9 +30,11 @@ export default function GuessTheFlagSettingScreen() {
     () => gameUserName.trim() !== '' && gameUserName.length >= 2,
     [gameUserName]
   );
-  const { users } = useRealtimePresenceRoom(roomName);
+  const { users, setMessage } = useRealtimePresenceRoom(roomName);
 
   const startGame = () => {
+    console.log('start');
+    setMessage('kjaslkdfjlkjal');
     // router.replace('/guess-the-flag');
   };
 
