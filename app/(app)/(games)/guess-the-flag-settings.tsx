@@ -9,14 +9,16 @@ import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function GuessTheFlagSettingScreen() {
-  const { isGuessTheFlagWriteAnswer, setIsGuessTheFlagWriteAnswer } =
-    useProfile();
+  const {
+    isGuessTheFlagWriteAnswer,
+    setIsGuessTheFlagWriteAnswer,
+    setGameUserName,
+    gameUserName,
+  } = useProfile();
   const isMultiplayer = useStore((state: any) => state.isMultiplayer);
   const setIsMultiplayer = useStore((state: any) => state.setIsMultiplayer);
   const roomName = useStore((state: any) => state.roomName);
   const setRoomName = useStore((state: any) => state.setRoomName);
-  const userName = useStore((state: any) => state.userName);
-  const setUserName = useStore((state: any) => state.setUserName);
   const players = useStore((state: any) => state.players);
   const setPlayers = useStore((state: any) => state.setPlayers);
 
@@ -25,12 +27,12 @@ export default function GuessTheFlagSettingScreen() {
     [roomName]
   );
   const isValidName = useMemo(
-    () => userName.trim() !== '' && userName.length >= 2,
-    [userName]
+    () => gameUserName.trim() !== '' && gameUserName.length >= 2,
+    [gameUserName]
   );
   const { users } = useRealtimePresenceRoom(roomName);
 
-  const joinRoom = () => {
+  const startGame = () => {
     // router.replace('/guess-the-flag');
   };
 
@@ -71,8 +73,8 @@ export default function GuessTheFlagSettingScreen() {
               <TextInputComponent
                 placeholder={'Name'}
                 borderColor={isValidName ? '#3bea06' : '#767577'}
-                onChangeText={setUserName}
-                inputValue={userName}
+                onChangeText={setGameUserName}
+                inputValue={gameUserName}
                 editable={!(isMultiplayer && players && players.length >= 2)}
               />
               <TextInputComponent
@@ -84,18 +86,30 @@ export default function GuessTheFlagSettingScreen() {
               />
               <Text style={styles.title}>Players</Text>
               {players &&
+                Object.values(players).map((item: any, index) => (
+                  <Text style={styles.userNames} key={index}>
+                    {item.name}
+                  </Text>
+                ))}
+              {players &&
                 Object.values(players).map((item: any, index) => {
-                  return (
-                    <Text style={styles.userNames} key={index}>
-                      {item.name}
-                    </Text>
-                  );
+                  if (item.name === gameUserName && index === 0) {
+                    return (
+                      <CTA
+                        key={index}
+                        title="Start"
+                        onPress={startGame}
+                        disabled={players.length < 2}
+                      />
+                    );
+                  } else if (item.name === gameUserName) {
+                    return (
+                      <Text style={styles.waitingText} key={index}>
+                        Waiting to start...
+                      </Text>
+                    );
+                  }
                 })}
-              <CTA
-                disabled={!isValidRoomName}
-                title={'Join room'}
-                onPress={joinRoom}
-              />
             </View>
           </ScrollView>
         )}
@@ -134,6 +148,12 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 18,
     marginBottom: 10,
+  },
+  waitingText: {
+    marginLeft: 10,
+    fontSize: 18,
+    textAlign: 'center',
+    marginVertical: 10,
   },
   scrollViewContents: {
     height: '100%',

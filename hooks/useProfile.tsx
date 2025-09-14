@@ -14,8 +14,8 @@ export default function useProfile() {
   const setStoreIsGuessTheFlagWriteAnswer = useStore(
     (state: any) => state.setStoreIsGuessTheFlagWriteAnswer
   );
-  const setGameName = useStore((state: any) => state.setGameName);
-  const gameName = useStore((state: any) => state.gameName);
+  const setGameUserName = useStore((state: any) => state.setGameUserName);
+  const gameUserName = useStore((state: any) => state.gameUserName);
 
   const getProfile = useCallback(async () => {
     try {
@@ -28,7 +28,7 @@ export default function useProfile() {
       if (data) {
         setStoreFavourites(data.favourites);
         setStoreIsGuessTheFlagWriteAnswer(data.is_guess_the_flag_write_answer);
-        setGameName(data.game_user_name);
+        setGameUserName(data.game_user_name);
       }
     } catch (error) {
       if (error instanceof Error) Alert.alert(error.message);
@@ -37,16 +37,18 @@ export default function useProfile() {
     session?.user,
     setStoreFavourites,
     setStoreIsGuessTheFlagWriteAnswer,
-    setGameName,
+    setGameUserName,
   ]);
 
   const updateProfile = useCallback(
     async ({
       favourites,
       isGuessTheFlagWriteAnswer,
+      gameUserName,
     }: {
       favourites?: string[] | [];
       isGuessTheFlagWriteAnswer?: boolean;
+      gameUserName?: string;
     }) => {
       try {
         if (!session?.user) throw new Error('No user on the session!');
@@ -54,6 +56,7 @@ export default function useProfile() {
           id: session?.user.id,
           favourites,
           is_guess_the_flag_write_answer: isGuessTheFlagWriteAnswer,
+          game_user_name: gameUserName,
         };
         const { error } = await supabase.from('profiles').upsert(updates);
         if (error) {
@@ -89,6 +92,14 @@ export default function useProfile() {
     [favourites, updateProfile, setStoreFavourites]
   );
 
+  const setGameUserNameHandler = useCallback(
+    async (value: string) => {
+      setGameUserName(value);
+      updateProfile({ gameUserName: value });
+    },
+    [setGameUserName, updateProfile]
+  );
+
   const guessTheFlagWriteAnswerHandler = () => {
     const newValue = !isGuessTheFlagWriteAnswer;
     setStoreIsGuessTheFlagWriteAnswer(newValue);
@@ -101,6 +112,7 @@ export default function useProfile() {
     getProfile,
     setIsGuessTheFlagWriteAnswer: guessTheFlagWriteAnswerHandler,
     isGuessTheFlagWriteAnswer,
-    gameName,
+    setGameUserName: setGameUserNameHandler,
+    gameUserName,
   };
 }
