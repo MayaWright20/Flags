@@ -12,6 +12,10 @@ export default function GamesLayout() {
         name="guess-the-flag-settings"
         options={{ headerShown: true, headerTitle: 'Guess the Flag' }}
       />
+      <Stack.Screen
+        name="test-page"
+        options={{ headerShown: true, headerTitle: 'Test Page' }}
+      />
     </Stack>
   );
 }

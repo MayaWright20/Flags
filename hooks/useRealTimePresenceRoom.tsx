@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import useProfile from './useProfile';
 
@@ -16,16 +17,17 @@ export const useRealtimePresenceRoom = (roomName: string) => {
   const [hasGameStarted, setHasGameStarted] = useState(false);
 
   function recieveMessage(payload: any) {
-    console.log('recieve', payload);
-  }
-
-  function startGame() {
-    setHasGameStarted(true);
-    recieveMessage('game started');
+    if (payload.payload.hasGameStarted) {
+      router.replace('/guess-the-flag');
+    }
   }
 
   useEffect(() => {
-    const room = supabase.channel(roomName);
+    const room = supabase.channel(roomName, {
+      config: {
+        broadcast: { self: true },
+      },
+    });
 
     room
       .on('presence', { event: 'sync' }, () => {
@@ -44,11 +46,6 @@ export const useRealtimePresenceRoom = (roomName: string) => {
       })
       .on(
         'broadcast',
-        { event: 'start_game' }, // Listen for "shout". Can be "*" to listen to all events
-        () => startGame()
-      )
-      .on(
-        'broadcast',
         { event: 'shout' }, // Listen for "shout". Can be "*" to listen to all events
         (payload) => recieveMessage(payload)
       )
@@ -64,14 +61,8 @@ export const useRealtimePresenceRoom = (roomName: string) => {
 
         room.send({
           type: 'broadcast',
-          event: 'start_game',
-          payload: { startGame: hasGameStarted },
-        });
-
-        room.send({
-          type: 'broadcast',
           event: 'shout',
-          payload: { message: message },
+          payload: { hasGameStarted: hasGameStarted },
         });
       });
 
@@ -80,5 +71,5 @@ export const useRealtimePresenceRoom = (roomName: string) => {
     };
   }, [roomName, gameUserName, favourites, message, hasGameStarted]);
 
-  return { users, setMessage, startGame };
+  return { users, setMessage, setHasGameStarted };
 };
