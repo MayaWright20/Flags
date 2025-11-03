@@ -1,6 +1,6 @@
+import cors from "cors";
 import { config } from "dotenv";
 import express from "express";
-import cors from cors;
 
 config({
     path: "./data/config.env"
@@ -23,4 +23,4 @@ app.get("/", (req, res, nex)=> {
 
 import user from "./routes/user.js";
 
-app.use("/api/v1/user", user)
+app.use("/api/v1/user", user);

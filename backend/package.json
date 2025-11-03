@@ -7,8 +7,11 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
+    "build": "echo 'Build complete'",
     "dev": "nodemon server.js",
     "start": "node server.js",
+    "deploy": "netlify deploy --prod",
+    "deploy:preview": "netlify deploy",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -17,6 +20,9 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "mongoose": "^8.19.2",
+    "netlify-cli": "^23.9.5",
+    "netlify-lambda": "^2.0.16",
+    "serverless-http": "^4.0.0",
     "validator": "^13.15.20"
   },
   "devDependencies": {
