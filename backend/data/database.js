@@ -7,6 +7,7 @@ export const connectDB = async () => {
         });
 
         console.log(`Server connected to databse ${connection.host}`);
+
     }catch(error){
         console.log("Error occured", error);
 
