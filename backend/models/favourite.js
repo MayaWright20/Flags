@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const scheme = new mongoose.Schema({
+const schema = new mongoose.Schema({
 
 });
 
