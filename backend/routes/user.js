@@ -1,13 +1,12 @@
 import express from "express";
-import { getMyProfile } from "../controllers/user.js";
+import { login, signUp } from "../controllers/user.js";
+
 
 const router = express.Router();
 
-router.route("/me", () => {
-    res.send("ME")
-});
+router.post("/login", login);
 
-router.route("/me").get(getMyProfile);
+router.post("/new", signUp);
 
 
 

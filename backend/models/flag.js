@@ -4,4 +4,4 @@ const schema = new mongoose.Schema({
 
 });
 
-export const Favourite = mongoose.model("Favourite", schema);
+export const Flag = mongoose.model("Flag", schema);
