@@ -1,3 +1,4 @@
+import cookieParser from "cookie-parser";
 import { config } from "dotenv";
 import express from "express";
 
@@ -8,6 +9,7 @@ config({
 export const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 
 app.get("/", (req, res, nex)=> {

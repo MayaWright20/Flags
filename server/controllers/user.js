@@ -24,7 +24,7 @@ export const login = asyncError(async(req, res, next) => {
     }
 
     sendToken(user, res, `Hey ${user.name}`, 200)
-})
+});
 
 export const signUp = asyncError(async(req, res, next) => {
 
@@ -42,4 +42,13 @@ export const signUp = asyncError(async(req, res, next) => {
     user = await User.create({name, email, password, username});
 
     sendToken(user, res, "Welcome!", 201)
+});
+
+export const getMyProfile = asyncError(async(req, res, next)=> {
+    const user = await User.findById(req.user._id);
+
+    res.status(200).json({
+        success: true,
+        user
+    })
 })
