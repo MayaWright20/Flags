@@ -66,14 +66,16 @@ export default function SignUpScreen() {
               {
                 formType: FORM_TYPES.TEXT_INPUT,
                 title: 'Name',
-                label: true
+                label: true,
+                placeholder: "Name"
               },
               {
                 formType: FORM_TYPES.TEXT_INPUT,
                 title: 'Username',
                 errorMessage: 'This username is taken.',
                 label: true,
-                autoCapitalize: "none"
+                autoCapitalize: "none",
+                placeholder: "Username"
               },
               {
                 formType: FORM_TYPES.TEXT_INPUT,
@@ -81,7 +83,8 @@ export default function SignUpScreen() {
                 keyboardType: 'email-address',
                 errorMessage: 'This email address is taken.',
                 label: true,
-                autoCapitalize: "none"
+                autoCapitalize: "none",
+                placeholder: "Email"
               },
               {
                 formType: FORM_TYPES.TEXT_INPUT,
@@ -89,6 +92,7 @@ export default function SignUpScreen() {
                 label: true,
                 title: 'Password',
                 autoCapitalize: "none",
+                placeholder: "Password",
                 
                 PASSWORD_ITEMS: [
                   { title: '12 characters', regex: /^.{12,}$/ },

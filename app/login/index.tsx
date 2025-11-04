@@ -68,6 +68,7 @@ export default function LoginScreen() {
               {
                 formType: FORM_TYPES.TEXT_INPUT,
                 isInputHidden: true,
+                placeholder: "Password",
                 title: 'Password',
                 label: true,
                 autoCapitalize: "none"
