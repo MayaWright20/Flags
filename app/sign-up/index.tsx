@@ -66,21 +66,25 @@ export default function SignUpScreen() {
               {
                 formType: FORM_TYPES.TEXT_INPUT,
                 title: 'Name',
+                label: true
               },
               {
                 formType: FORM_TYPES.TEXT_INPUT,
                 title: 'Username',
                 errorMessage: 'This username is taken.',
+                label: true
               },
               {
                 formType: FORM_TYPES.TEXT_INPUT,
                 title: 'Email',
                 keyboardType: 'email-address',
                 errorMessage: 'This email address is taken.',
+                label: true
               },
               {
                 formType: FORM_TYPES.TEXT_INPUT,
                 isInputHidden: true,
+                label: true,
                 title: 'Password',
                 PASSWORD_ITEMS: [
                   { title: '12 characters', regex: /^.{12,}$/ },

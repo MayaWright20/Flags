@@ -115,6 +115,7 @@ export default function Form({
                     <Text style={styles.title}>{item.title}</Text>
                   )}
                   <TextInputComponent
+                    label={item.label}
                     isMultiline={item.isMultiline ? true : false}
                     placeholder={item.title}
                     onChangeText={(text) => handleTextChange(text, item.title)}

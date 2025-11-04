@@ -1,11 +1,11 @@
-import CTA from '@/components/buttons/large-cta';
-import { SplashScreenController } from '@/components/splash/splash-screen-controller';
-import useProfile from '@/hooks/useProfile';
-import { useStore } from '@/store/store';
-import axios from 'axios';
-import { router, Stack } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import CTA from "@/components/buttons/large-cta";
+import { SplashScreenController } from "@/components/splash/splash-screen-controller";
+import useProfile from "@/hooks/useProfile";
+import { usePersistStore, useStore } from "@/store/store";
+import axios from "axios";
+import { router, Stack } from "expo-router";
+import { useEffect, useState } from "react";
+import { StyleSheet, useWindowDimensions, View } from "react-native";
 
 const apiUrl = process.env.EXPO_PUBLIC_URL;
 
@@ -23,6 +23,9 @@ function RootNavigator() {
   const { getProfile } = useProfile();
 
   const isAuthCTADisabled = useStore((state: any) => state.isAuthCTADisabled);
+  const setIsAuthCTADisabled = useStore(
+    (state: any) => state.setIsAuthCTADisabled
+  );
   const authCTANumber = useStore((state: any) => state.authCTANumber);
   const authCTATitle = useStore((state: any) => state.authCTATitle);
   const increaseAuthCTANumber = useStore(
@@ -36,11 +39,11 @@ function RootNavigator() {
     (state: any) => state.setIsAuthLoginRoute
   );
   const formData = useStore((state: any) => state.formData);
-
+  const session = usePersistStore((state: any) => state.session);
+  const setSession = usePersistStore((state: any) => state.setSession);
 
   const [loading, setLoading] = useState(false);
 
-  const [session, setSession] = useState<string | number | null>(null);
   useEffect(() => {
     // supabase.auth.getSession().then(({ data: { session } }) => {
     //   setSession(session);
@@ -52,7 +55,7 @@ function RootNavigator() {
 
   async function signInWithEmail() {
     setLoading(true);
-    
+
     // const { error } = await supabase.auth.signInWithPassword({
     //   email: email,
     //   password: password,
@@ -61,23 +64,34 @@ function RootNavigator() {
     setLoading(false);
   }
 
+  async function goToHomeScreen() {
+    if (session) {
+      await axios.get(`${apiUrl}user/profile`);
+
+      router.navigate("/(app)");
+      resetAuthCTAVariables();
+    }
+  }
+
   async function signUpWithEmail() {
     setLoading(true);
 
-    try{
-      const {status} = await axios.post(`${apiUrl}user/signup`, {
-        "name": formData.Name,
-        "email": formData.Email,
-        "password": formData.Password,
-        "username": formData.Username
+    try {
+      const hiddenPassword = formData.Password;
+      setIsAuthCTADisabled(true);
+      const response = await axios.post(`${apiUrl}user/signup`, {
+        name: formData.Name,
+        email: formData.Email.toLowerCase(),
+        password: hiddenPassword,
+        username: formData.Username.toLowerCase(),
       });
-      
-      if(status === 201){
-        console.log('hello')
-        router.navigate('/(app)');
+
+      if (response.data.token) {
+        setSession(response.data.token);
+        goToHomeScreen();
       }
-    }catch(error){
-      console.log('error signing up')
+    } catch (error) {
+      console.log("error signing up");
     }
     setLoading(false);
   }
@@ -85,20 +99,14 @@ function RootNavigator() {
   const onPress = () => {
     if (authCTANumber === 0 && isAuthLoginRoute) {
       signInWithEmail();
-      router.navigate('/(app)');
+      router.navigate("/(app)");
       resetAuthCTAVariables();
     } else if (authCTANumber === 0) {
-      router.navigate('/sign-up');
+      router.navigate("/sign-up");
       setIsAuthLoginRoute(false);
       increaseAuthCTANumber();
     } else if (authCTANumber === 1) {
       signUpWithEmail();
-
-      // if (session) {
-      //   // getProfile();
-      //   router.navigate('/(app)');
-      //   resetAuthCTAVariables();
-      // }
     }
   };
 
@@ -114,7 +122,7 @@ function RootNavigator() {
             name="(app)"
             options={{
               headerShown: false,
-              animation: 'slide_from_bottom',
+              animation: "slide_from_bottom",
             }}
           />
         </Stack.Protected>
@@ -124,14 +132,14 @@ function RootNavigator() {
             name="login"
             options={{
               headerShown: false,
-              animation: 'flip',
+              animation: "flip",
             }}
           />
           <Stack.Screen
             name="sign-up"
             options={{
               headerShown: false,
-              animation: 'flip',
+              animation: "flip",
             }}
           />
         </Stack.Protected>
@@ -152,8 +160,8 @@ function RootNavigator() {
 const styles = StyleSheet.create({
   ctaWrapper: {
     flex: 1,
-    width: '100%',
-    position: 'absolute',
+    width: "100%",
+    position: "absolute",
     paddingHorizontal: 20,
   },
 });

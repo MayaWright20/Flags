@@ -3,7 +3,9 @@ import {
   randomNumberGenerator,
   randomNumbers,
 } from '@/lib/randomNumberGenerator';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from 'zustand';
+import { createJSONStorage, persist } from "zustand/middleware";
 
 interface StoreState {
   authCTATitle: string;
@@ -108,3 +110,31 @@ export const useStore = create<StoreState>((set, get) => ({
   setWrittenAnswerCTATitle: (writtenAnswerCTATitle: string) =>
     set(() => ({ writtenAnswerCTATitle })),
 }));
+
+const sessionStorage = {
+  getItem: async (name: string): Promise<string | null> => {
+    const data = (await AsyncStorage.getItem(name)) || null;
+    return data;
+  },
+  setItem: async (name: string, value: string): Promise<void> => {
+    await AsyncStorage.setItem(name, value);
+  },
+  removeItem: async (name: string): Promise<void> => {
+    await AsyncStorage.removeItem(name);
+  },
+};
+
+export const usePersistStore = create()(
+  persist(
+    (set, get) => ({
+      session: false,
+      setSession: (session: boolean) => set({ session }),
+      accountId: '',
+      setAccountId: (accountId: string) => set({ accountId }),
+    }),
+    {
+      name: 'session',
+      storage: createJSONStorage(() => sessionStorage),
+    },
+  ),
+)
