@@ -1,13 +1,13 @@
 import CTA from '@/components/buttons/large-cta';
 import { SplashScreenController } from '@/components/splash/splash-screen-controller';
 import useProfile from '@/hooks/useProfile';
-
-import { supabase } from '@/lib/supabase';
 import { useStore } from '@/store/store';
-import { Session } from '@supabase/supabase-js';
+import axios from 'axios';
 import { router, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
+
+const apiUrl = process.env.EXPO_PUBLIC_URL;
 
 export default function Root() {
   return (
@@ -37,49 +37,53 @@ function RootNavigator() {
   );
   const formData = useStore((state: any) => state.formData);
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+
   const [loading, setLoading] = useState(false);
 
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<string | number | null>(null);
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+    // supabase.auth.getSession().then(({ data: { session } }) => {
+    //   setSession(session);
+    // });
+    // supabase.auth.onAuthStateChange((_event, session) => {
+    //   setSession(session);
+    // });
   }, []);
 
   async function signInWithEmail() {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    });
-    if (error) Alert.alert(error.message, 'here');
+    
+    // const { error } = await supabase.auth.signInWithPassword({
+    //   email: email,
+    //   password: password,
+    // });
+    // if (error) Alert.alert(error.message, 'here');
     setLoading(false);
   }
 
   async function signUpWithEmail() {
     setLoading(true);
-    const {
-      data: { session },
-      error,
-    } = await supabase.auth.signUp({
-      email: email,
-      password: password,
-    });
-    if (error) Alert.alert(error.message);
-    if (!session)
-      Alert.alert('Please check your inbox for email verification!');
+
+    try{
+      const {status} = await axios.post(`${apiUrl}user/signup`, {
+        "name": formData.Name,
+        "email": formData.Email,
+        "password": formData.Password,
+        "username": formData.Username
+      });
+      
+      if(status === 201){
+        console.log('hello')
+        router.navigate('/(app)');
+      }
+    }catch(error){
+      console.log('error signing up')
+    }
     setLoading(false);
   }
 
   const onPress = () => {
     if (authCTANumber === 0 && isAuthLoginRoute) {
-      setEmail(formData.Email);
-      setPassword(formData.Password);
       signInWithEmail();
       router.navigate('/(app)');
       resetAuthCTAVariables();
@@ -88,15 +92,13 @@ function RootNavigator() {
       setIsAuthLoginRoute(false);
       increaseAuthCTANumber();
     } else if (authCTANumber === 1) {
-      setEmail(formData.Email);
-      setPassword(formData.Password);
       signUpWithEmail();
 
-      if (session) {
-        getProfile();
-        router.navigate('/(app)');
-        resetAuthCTAVariables();
-      }
+      // if (session) {
+      //   // getProfile();
+      //   router.navigate('/(app)');
+      //   resetAuthCTAVariables();
+      // }
     }
   };
 

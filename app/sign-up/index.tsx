@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 
 const { height: screenHeight } = Dimensions.get('window');
+const FORM_COLOR = COLOURS.blue;
 
 export default function SignUpScreen() {
   const router = useRouter();
@@ -49,7 +50,7 @@ export default function SignUpScreen() {
           <SmallCTA
             onPress={smallCTAHandler}
             color={COLOURS.white}
-            backgroundColor={COLOURS.purple}
+            backgroundColor={FORM_COLOR}
             title={'Back'}
             styleInput={{ ...styles.smallCTA }}
           />
@@ -60,8 +61,17 @@ export default function SignUpScreen() {
           keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
         >
           <Form
-            color={COLOURS.purple}
+            color={FORM_COLOR}
             content={[
+              {
+                formType: FORM_TYPES.TEXT_INPUT,
+                title: 'Name',
+              },
+              {
+                formType: FORM_TYPES.TEXT_INPUT,
+                title: 'Username',
+                errorMessage: 'This username is taken.',
+              },
               {
                 formType: FORM_TYPES.TEXT_INPUT,
                 title: 'Email',
