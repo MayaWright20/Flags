@@ -4,14 +4,12 @@ import ErrorHandler from "../utils/error.js";
 import { asyncError } from "./error.js";
 
 export const isAuthenticated = asyncError(async(req, res, next) => {
-    // Check for token in cookies (for web) or Authorization header (for mobile)
     let token = req.cookies.token;
-    
-    // If no token in cookies, check Authorization header
+
     if (!token && req.headers.authorization) {
         const authHeader = req.headers.authorization;
         if (authHeader.startsWith('Bearer ')) {
-            token = authHeader.substring(7); // Remove 'Bearer ' prefix
+            token = authHeader.substring(7);
         }
     }
   

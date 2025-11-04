@@ -17,9 +17,6 @@ export default function ProfileScreen() {
 
   const signOutHandler = async() => {
     try {
-      // Since you're using token-based auth, you'll need to send the token
-      // in the request headers instead of relying on cookies
-      
       const response = await axios.get(`http://localhost:5000/api/v1/user/logout`, {
         headers: {
           Authorization: `Bearer ${session}`,
@@ -27,16 +24,13 @@ export default function ProfileScreen() {
       });
       
       if (response.data.success) {
-        console.log("Successfully logged out from server");
+        console.log("Successfully logged out from server", response.status);
       }
     } catch (err) {
-      console.log("Server logout error:", err);
-      // Continue with local logout even if server fails
+      console.log(err);
     } finally {
-      // Always clear local session state regardless of server response
       resetAuthCTAVariables();
       setSession(false);
-      console.log("Local session cleared");
     }
   };
   return (

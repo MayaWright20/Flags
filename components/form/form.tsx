@@ -83,11 +83,13 @@ export default function Form({
     if (typeof fieldName !== 'string') {
       fieldName = String(fieldName);
     }
+
     dispatch({
       type: 'SET_FIELD',
       field: fieldName,
       value: text,
     });
+
     setFormData(state);
   };
 
@@ -124,6 +126,8 @@ export default function Form({
                     keyboardType={item.keyboardType || undefined}
                     showMaxLengthPill={item.showMaxLengthPill}
                     maxLength={item.maxLength}
+                    autoCapitalize={item.autoCapitalize}
+                    
                     // errorState={
 
                     //   item.regex &&

@@ -44,28 +44,6 @@ function RootNavigator() {
 
   const [loading, setLoading] = useState(false);
 
-  async function signInWithEmail() {
-    setLoading(true);
-
-    try {
-      setIsAuthCTADisabled(true);
-      const response = await axios.post(`${basePath}user/login`, {
-        email: formData.Email?.toLowerCase() || formData.Username?.toLowerCase(),
-        password: formData.Password,
-        username: formData.Username?.toLowerCase() || formData.Email?.toLowerCase(),
-      });
-
-      if (response.data.token) {
-        setSession(response.data.token);
-        goToHomeScreen();
-      }
-    } catch (error) {
-      console.log("error signing in:", error);
-      setIsAuthCTADisabled(false);
-    }
-    setLoading(false);
-  }
-
   async function goToHomeScreen() {
     if (session) {
       await axios.get(`${basePath}user/profile`);
@@ -75,16 +53,36 @@ function RootNavigator() {
     }
   }
 
+  async function signInWithEmail() {
+    setLoading(true);
+
+    try {
+      setIsAuthCTADisabled(true);
+      const response = await axios.post(`${basePath}user/login`, {
+        email: formData.Email?.toLowerCase(),
+        password: formData.Password,
+      });
+
+      if (response.data.token) {
+        setSession(response.data.token);
+        goToHomeScreen();
+      }
+    } catch (error) {
+      setIsAuthCTADisabled(false);
+    }
+    setLoading(false);
+  }
+
   async function signUpWithEmail() {
     setLoading(true);
 
     try {
-      const hiddenPassword = formData.Password;
       setIsAuthCTADisabled(true);
+
       const response = await axios.post(`${basePath}user/signup`, {
         name: formData.Name,
         email: formData.Email.toLowerCase(),
-        password: hiddenPassword,
+        password: formData.Password,
         username: formData.Username.toLowerCase(),
       });
 
@@ -92,6 +90,7 @@ function RootNavigator() {
         setSession(response.data.token);
         goToHomeScreen();
       }
+
     } catch (error) {
       console.log("error signing up");
     }
