@@ -17,15 +17,12 @@ export default function ProfileScreen() {
 
   const signOutHandler = async() => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/v1/user/logout`, {
+       await axios.get(`http://localhost:5000/api/v1/user/logout`, {
         headers: {
           Authorization: `Bearer ${session}`,
         },
       });
       
-      if (response.data.success) {
-        console.log("Successfully logged out from server", response.status);
-      }
     } catch (err) {
       console.log(err);
     } finally {

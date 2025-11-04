@@ -44,16 +44,24 @@ function RootNavigator() {
 
   const [loading, setLoading] = useState(false);
 
-  async function goToHomeScreen() {
-    if (session) {
-      const response = await axios.get(`${basePath}user/profile`);
+  async function goToHomeScreenWithToken(token: string) {
+    try {
+      if(token){
 
-      console.log(response)
+        const response = await axios.get(`${basePath}user/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       router.navigate("/(app)");
       resetAuthCTAVariables();
+      }
+      
+    } catch (error) {
+      console.log("Error fetching profile:", error);
     }
-  };
+  }
 
   async function signInWithEmail() {
     setLoading(true);
@@ -67,13 +75,14 @@ function RootNavigator() {
 
       if (response.data.token) {
         setSession(response.data.token);
-        goToHomeScreen();
+        
+        goToHomeScreenWithToken(response.data.token);
       }
     } catch (error) {
       setIsAuthCTADisabled(false);
     }
     setLoading(false);
-  };
+  }
 
   async function signUpWithEmail() {
     setLoading(true);
@@ -90,14 +99,15 @@ function RootNavigator() {
 
       if (response.data.token) {
         setSession(response.data.token);
-        goToHomeScreen();
+        
+        goToHomeScreenWithToken(response.data.token);
       }
 
     } catch (error) {
-      console.log("error signing up");
+      setIsAuthCTADisabled(false);
     }
     setLoading(false);
-  };
+  }
 
   const onPress = () => {
     if (authCTANumber === 0 && isAuthLoginRoute) {
@@ -109,7 +119,7 @@ function RootNavigator() {
     } else if (authCTANumber === 1) {
       signUpWithEmail();
     }
-  };
+  }
 
   return (
     <View style={{ flex: 1 }}>

@@ -127,10 +127,8 @@ const sessionStorage = {
 export const usePersistStore = create()(
   persist(
     (set, get) => ({
-      session: false,
-      setSession: (session: boolean) => set({ session }),
-      accountId: '',
-      setAccountId: (accountId: string) => set({ accountId }),
+      session: null,
+      setSession: (session: null | string) => set({ session }),
     }),
     {
       name: 'session',

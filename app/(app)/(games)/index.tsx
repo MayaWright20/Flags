@@ -12,6 +12,7 @@ const GAMES = [
 ];
 
 export default function GamesScreen() {
+  
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
