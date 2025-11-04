@@ -6,8 +6,8 @@ import axios from "axios";
 import { router, Stack } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, useWindowDimensions, View } from "react-native";
+import { basePath } from "../lib/env-variables";
 
-const apiUrl = process.env.EXPO_PUBLIC_URL;
 
 export default function Root() {
   return (
@@ -47,17 +47,28 @@ function RootNavigator() {
   async function signInWithEmail() {
     setLoading(true);
 
-    // const { error } = await supabase.auth.signInWithPassword({
-    //   email: email,
-    //   password: password,
-    // });
-    // if (error) Alert.alert(error.message, 'here');
+    try {
+      setIsAuthCTADisabled(true);
+      const response = await axios.post(`${basePath}user/login`, {
+        email: formData.Email?.toLowerCase() || formData.Username?.toLowerCase(),
+        password: formData.Password,
+        username: formData.Username?.toLowerCase() || formData.Email?.toLowerCase(),
+      });
+
+      if (response.data.token) {
+        setSession(response.data.token);
+        goToHomeScreen();
+      }
+    } catch (error) {
+      console.log("error signing in:", error);
+      setIsAuthCTADisabled(false);
+    }
     setLoading(false);
   }
 
   async function goToHomeScreen() {
     if (session) {
-      await axios.get(`${apiUrl}user/profile`);
+      await axios.get(`${basePath}user/profile`);
 
       router.navigate("/(app)");
       resetAuthCTAVariables();
@@ -70,7 +81,7 @@ function RootNavigator() {
     try {
       const hiddenPassword = formData.Password;
       setIsAuthCTADisabled(true);
-      const response = await axios.post(`${apiUrl}user/signup`, {
+      const response = await axios.post(`${basePath}user/signup`, {
         name: formData.Name,
         email: formData.Email.toLowerCase(),
         password: hiddenPassword,
@@ -90,8 +101,7 @@ function RootNavigator() {
   const onPress = () => {
     if (authCTANumber === 0 && isAuthLoginRoute) {
       signInWithEmail();
-      router.navigate("/(app)");
-      resetAuthCTAVariables();
+      // Don't navigate immediately - let signInWithEmail handle navigation on success
     } else if (authCTANumber === 0) {
       router.navigate("/sign-up");
       setIsAuthLoginRoute(false);

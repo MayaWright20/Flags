@@ -1,6 +1,7 @@
-import CTA from '@/components/buttons/large-cta';
-import { usePersistStore, useStore } from '@/store/store';
-import { Image, StyleSheet, View } from 'react-native';
+import CTA from "@/components/buttons/large-cta";
+import { usePersistStore, useStore } from "@/store/store";
+import axios from "axios";
+import { Image, StyleSheet, View } from "react-native";
 
 export default function ProfileScreen() {
   // Settings - search by guesss by flag/ name
@@ -11,21 +12,40 @@ export default function ProfileScreen() {
   const resetAuthCTAVariables = useStore(
     (state: any) => state.resetAuthCTAVariables
   );
-  const setSession = usePersistStore(
-    (state: any) => state.setSession
-  );
+  const setSession = usePersistStore((state: any) => state.setSession);
+  const session = usePersistStore((state: any) => state.session);
 
-  const signOutHandler = () => {
-    resetAuthCTAVariables();
-    setSession(null)
+  const signOutHandler = async() => {
+    try {
+      // Since you're using token-based auth, you'll need to send the token
+      // in the request headers instead of relying on cookies
+      
+      const response = await axios.get(`http://localhost:5000/api/v1/user/logout`, {
+        headers: {
+          Authorization: `Bearer ${session}`,
+        },
+      });
+      
+      if (response.data.success) {
+        console.log("Successfully logged out from server");
+      }
+    } catch (err) {
+      console.log("Server logout error:", err);
+      // Continue with local logout even if server fails
+    } finally {
+      // Always clear local session state regardless of server response
+      resetAuthCTAVariables();
+      setSession(false);
+      console.log("Local session cleared");
+    }
   };
   return (
     <View style={styles.page}>
       <Image
-        source={require('@/assets/images/laying.png')}
-        style={{ width: '100%', height: 200, marginBottom: 150 }}
+        source={require("@/assets/images/laying.png")}
+        style={{ width: "100%", height: 200, marginBottom: 150 }}
       />
-      <CTA title={'Sign out'} onPress={signOutHandler} style={styles.cta} />
+      <CTA title={"Sign out"} onPress={signOutHandler} style={styles.cta} />
     </View>
   );
 }
@@ -33,10 +53,10 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    alignItems: 'center',
-    backgroundColor: 'white',
+    alignItems: "center",
+    backgroundColor: "white",
   },
   cta: {
-    width: '95%',
+    width: "95%",
   },
 });
