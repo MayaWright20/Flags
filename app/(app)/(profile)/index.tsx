@@ -1,35 +1,13 @@
 import CTA from "@/components/buttons/large-cta";
-import { usePersistStore, useStore } from "@/store/store";
-import axios from "axios";
+import useProfile from "@/hooks/useProfile";
 import { Image, StyleSheet, View } from "react-native";
 
 export default function ProfileScreen() {
-  // Settings - search by guesss by flag/ name
+  const {signOutHandler} = useProfile();
   // sign out
-  // reset favourites
-  // remove profile
+  // delete profile
+  // edit details - name, email, password
 
-  const resetAuthCTAVariables = useStore(
-    (state: any) => state.resetAuthCTAVariables
-  );
-  const setSession = usePersistStore((state: any) => state.setSession);
-  const session = usePersistStore((state: any) => state.session);
-
-  const signOutHandler = async() => {
-    try {
-       await axios.get(`http://localhost:5000/api/v1/user/logout`, {
-        headers: {
-          Authorization: `Bearer ${session}`,
-        },
-      });
-      
-    } catch (err) {
-      console.log(err);
-    } finally {
-      resetAuthCTAVariables();
-      setSession(false);
-    }
-  };
   return (
     <View style={styles.page}>
       <Image

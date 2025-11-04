@@ -47,15 +47,9 @@ function RootNavigator() {
   async function goToHomeScreenWithToken(token: string) {
     try {
       if(token){
-
-        const response = await axios.get(`${basePath}user/profile`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      router.navigate("/(app)");
-      resetAuthCTAVariables();
+        await getProfile(token);
+        router.navigate("/(app)");
+        resetAuthCTAVariables();
       }
       
     } catch (error) {

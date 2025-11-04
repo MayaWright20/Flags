@@ -52,7 +52,9 @@ interface StoreState {
   setWrittenAnswerCTATitle: (writtenAnswerCTATitle: string) => void;
 }
 
-export const useStore = create<StoreState>((set, get) => ({
+export const useStore = create<StoreState | any>((set, get) => ({
+  profileName: 'Buddy',
+  setprofileName: (profileName: string) => set(() => ({ profileName })),
   authCTATitle: 'Sign up',
   setAuthCTATitle: (title: string) => set(() => ({ authCTATitle: title })),
   isAuthCTADisabled: false,
@@ -76,19 +78,19 @@ export const useStore = create<StoreState>((set, get) => ({
   formData: null,
   setFormData: (formData: any) => set(() => ({ formData: formData })),
   favourites: [] as string[],
-  setStoreFavourites: (favouriteItems: string[]) =>
-    set(() => ({ favourites: favouriteItems })),
-  isGuessTheFlagWriteAnswer: false,
-  setStoreIsGuessTheFlagWriteAnswer: (isGuessTheFlagWriteAnswer: boolean) =>
-    set(() => ({ isGuessTheFlagWriteAnswer })),
-  isMultiplayer: false,
-  setIsMultiplayer: (value: boolean) => set(() => ({ isMultiplayer: value })),
-  roomName: '',
-  setRoomName: (roomName: string) => set(() => ({ roomName })),
-  players: [],
-  setPlayers: (players: string[] | []) => set(() => ({ players })),
-  gameUserName: '',
-  setGameUserName: (gameUserName: string) => set(() => ({ gameUserName })),
+  // setStoreFavourites: (favouriteItems: string[]) =>
+  //   set(() => ({ favourites: favouriteItems })),
+  // isGuessTheFlagWriteAnswer: false,
+  // setStoreIsGuessTheFlagWriteAnswer: (isGuessTheFlagWriteAnswer: boolean) =>
+  //   set(() => ({ isGuessTheFlagWriteAnswer })),
+  // isMultiplayer: false,
+  // setIsMultiplayer: (value: boolean) => set(() => ({ isMultiplayer: value })),
+  // roomName: '',
+  // setRoomName: (roomName: string) => set(() => ({ roomName })),
+  // players: [],
+  // setPlayers: (players: string[] | []) => set(() => ({ players })),
+  // gameUserName: '',
+  // setGameUserName: (gameUserName: string) => set(() => ({ gameUserName })),
   correctAnswerInt: randomNumberGenerator(ANSWERS_LENGTH),
   setCorrectAnswerInt: (correctAnswerInt: number) =>
     set(() => ({ correctAnswerInt })),
