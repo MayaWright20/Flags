@@ -1,0 +1,27 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Maya Wright",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "build": "expo export:web --output-dir dist",
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.2",
+    "validator": "^13.15.20"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

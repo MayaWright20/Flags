@@ -1,13 +1,13 @@
-import CTA from '@/components/buttons/large-cta';
-import { SplashScreenController } from '@/components/splash/splash-screen-controller';
-import useProfile from '@/hooks/useProfile';
+import CTA from "@/components/buttons/large-cta";
+import { SplashScreenController } from "@/components/splash/splash-screen-controller";
+import useProfile from "@/hooks/useProfile";
+import { usePersistStore, useStore } from "@/store/store";
+import axios from "axios";
+import { router, Stack } from "expo-router";
+import { useState } from "react";
+import { StyleSheet, useWindowDimensions, View } from "react-native";
+import { basePath } from "../lib/env-variables";
 
-import { supabase } from '@/lib/supabase';
-import { useStore } from '@/store/store';
-import { Session } from '@supabase/supabase-js';
-import { router, Stack } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { Alert, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 export default function Root() {
   return (
@@ -23,6 +23,9 @@ function RootNavigator() {
   const { getProfile } = useProfile();
 
   const isAuthCTADisabled = useStore((state: any) => state.isAuthCTADisabled);
+  const setIsAuthCTADisabled = useStore(
+    (state: any) => state.setIsAuthCTADisabled
+  );
   const authCTANumber = useStore((state: any) => state.authCTANumber);
   const authCTATitle = useStore((state: any) => state.authCTATitle);
   const increaseAuthCTANumber = useStore(
@@ -36,69 +39,81 @@ function RootNavigator() {
     (state: any) => state.setIsAuthLoginRoute
   );
   const formData = useStore((state: any) => state.formData);
+  const session = usePersistStore((state: any) => state.session);
+  const setSession = usePersistStore((state: any) => state.setSession);
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const [session, setSession] = useState<Session | null>(null);
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-  }, []);
+  async function goToHomeScreenWithToken(token: string) {
+    try {
+      if(token){
+        await getProfile(token);
+        router.navigate("/(app)/(games)/");
+        resetAuthCTAVariables();
+      }
+      
+    } catch (error) {
+      console.log("Error fetching profile:", error);
+    }
+  }
 
   async function signInWithEmail() {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    });
-    if (error) Alert.alert(error.message, 'here');
+
+    try {
+      setIsAuthCTADisabled(true);
+      const response = await axios.post(`${basePath}user/login`, {
+        email: formData.Email?.toLowerCase(),
+        password: formData.Password,
+      });
+
+      if (response.data.token) {
+        setSession(response.data.token);
+        
+        goToHomeScreenWithToken(response.data.token);
+      }
+    } catch (error) {
+      setIsAuthCTADisabled(false);
+    }
     setLoading(false);
   }
 
   async function signUpWithEmail() {
     setLoading(true);
-    const {
-      data: { session },
-      error,
-    } = await supabase.auth.signUp({
-      email: email,
-      password: password,
-    });
-    if (error) Alert.alert(error.message);
-    if (!session)
-      Alert.alert('Please check your inbox for email verification!');
+
+    try {
+      setIsAuthCTADisabled(true);
+
+      const response = await axios.post(`${basePath}user/signup`, {
+        name: formData.Name,
+        email: formData.Email.toLowerCase(),
+        password: formData.Password,
+        username: formData.Username.toLowerCase(),
+      });
+
+      if (response.data.token) {
+        setSession(response.data.token);
+        
+        goToHomeScreenWithToken(response.data.token);
+      }
+
+    } catch (error) {
+      setIsAuthCTADisabled(false);
+    }
     setLoading(false);
   }
 
   const onPress = () => {
     if (authCTANumber === 0 && isAuthLoginRoute) {
-      setEmail(formData.Email);
-      setPassword(formData.Password);
       signInWithEmail();
-      router.navigate('/(app)');
-      resetAuthCTAVariables();
     } else if (authCTANumber === 0) {
-      router.navigate('/sign-up');
+      router.navigate("/sign-up");
       setIsAuthLoginRoute(false);
       increaseAuthCTANumber();
     } else if (authCTANumber === 1) {
-      setEmail(formData.Email);
-      setPassword(formData.Password);
       signUpWithEmail();
-
-      if (session) {
-        getProfile();
-        router.navigate('/(app)');
-        resetAuthCTAVariables();
-      }
     }
-  };
+  }
 
   return (
     <View style={{ flex: 1 }}>
@@ -112,7 +127,7 @@ function RootNavigator() {
             name="(app)"
             options={{
               headerShown: false,
-              animation: 'slide_from_bottom',
+              animation: "slide_from_bottom",
             }}
           />
         </Stack.Protected>
@@ -122,14 +137,14 @@ function RootNavigator() {
             name="login"
             options={{
               headerShown: false,
-              animation: 'flip',
+              animation: "flip",
             }}
           />
           <Stack.Screen
             name="sign-up"
             options={{
               headerShown: false,
-              animation: 'flip',
+              animation: "flip",
             }}
           />
         </Stack.Protected>
@@ -150,8 +165,8 @@ function RootNavigator() {
 const styles = StyleSheet.create({
   ctaWrapper: {
     flex: 1,
-    width: '100%',
-    position: 'absolute',
+    width: "100%",
+    position: "absolute",
     paddingHorizontal: 20,
   },
 });

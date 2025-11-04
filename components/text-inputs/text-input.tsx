@@ -30,6 +30,7 @@ export default function TextInputComponent({
   inputValue,
   showMaxLengthPill,
   editable = true,
+  label
 }: {
   placeholder: string;
   onChangeText: ((text: string) => void) | undefined;
@@ -46,6 +47,7 @@ export default function TextInputComponent({
   inputValue?: string;
   showMaxLengthPill?: boolean;
   editable?: boolean;
+  label?:boolean;
 }) {
   const [isFocused, setIsFocused] = useState(false);
   const [value, setValue] = useState('');
@@ -67,6 +69,11 @@ export default function TextInputComponent({
 
   return (
     <>
+    {
+      label && (
+        <Text style={[styles.label, {color: borderColor}]}>{placeholder}</Text>
+      )
+    }
       <TextInput
         style={[
           styles.textInput,
@@ -85,7 +92,7 @@ export default function TextInputComponent({
         ]}
         value={inputValue ? inputValue : value}
         multiline={isMultiline}
-        placeholder={placeholder}
+        placeholder={label? undefined : placeholder}
         onChangeText={clear ? clearText : handleChange}
         keyboardType={keyboardType}
         lineBreakStrategyIOS="none"
@@ -102,6 +109,11 @@ export default function TextInputComponent({
 }
 
 const styles = StyleSheet.create({
+  label: {
+    paddingLeft: PADDING.SMALL_PADDING,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   textInput: {
     borderRadius: BORDER_RADIUS.XLARGE_BORDER_RADIUS,
     justifyContent: 'center',

@@ -1,11 +1,9 @@
-import useSession from '@/hooks/useSession';
-import { supabase } from '@/lib/supabase';
-import { useStore } from '@/store/store';
-import { useCallback, useEffect } from 'react';
-import { Alert } from 'react-native';
+import { basePath } from "@/lib/env-variables";
+import { usePersistStore, useStore } from "@/store/store";
+import axios from "axios";
+import { useCallback } from "react";
 
 export default function useProfile() {
-  const { session } = useSession();
   const favourites = useStore((state: any) => state.favourites);
   const setStoreFavourites = useStore((state: any) => state.setStoreFavourites);
   const isGuessTheFlagWriteAnswer = useStore(
@@ -16,103 +14,91 @@ export default function useProfile() {
   );
   const setGameUserName = useStore((state: any) => state.setGameUserName);
   const gameUserName = useStore((state: any) => state.gameUserName);
+  const session = usePersistStore((state: any) => state.session);
 
-  const getProfile = useCallback(async () => {
-    try {
-      const { data, error, status } = await supabase
-        .from('profiles')
-        .select('favourites,  is_guess_the_flag_write_answer, game_user_name')
-        .eq('id', session?.user.id)
-        .single();
-      if (error && status !== 406) throw error;
-      if (data) {
-        setStoreFavourites(data.favourites);
-        setStoreIsGuessTheFlagWriteAnswer(data.is_guess_the_flag_write_answer);
-        setGameUserName(data.game_user_name);
-      }
-    } catch (error) {
-      if (error instanceof Error) Alert.alert(error.message);
-    }
-  }, [
-    session?.user,
-    setStoreFavourites,
-    setStoreIsGuessTheFlagWriteAnswer,
-    setGameUserName,
-  ]);
+  const profileName = useStore((state: any) => state.profileName);
+  const setProfileName = useStore((state: any) => state.setProfileName);
+  const resetAuthCTAVariables = useStore(
+    (state: any) => state.resetAuthCTAVariables
+  );
+  const setSession = usePersistStore((state: any) => state.setSession);
 
-  const updateProfile = useCallback(
-    async ({
-      favourites,
-      isGuessTheFlagWriteAnswer,
-      gameUserName,
-    }: {
-      favourites?: string[] | [];
-      isGuessTheFlagWriteAnswer?: boolean;
-      gameUserName?: string;
-    }) => {
+  const getProfile = useCallback(
+    async (token: string) => {
       try {
-        if (!session?.user) throw new Error('No user on the session!');
-        const updates = {
-          id: session?.user.id,
-          favourites,
-          is_guess_the_flag_write_answer: isGuessTheFlagWriteAnswer,
-          game_user_name: gameUserName,
-        };
-        const { error } = await supabase.from('profiles').upsert(updates);
-        if (error) {
-          throw error;
-        }
+        const response = await axios.get(`${basePath}user/profile`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        await setProfileName(response.data.user.name);
+
       } catch (error) {
-        if (error instanceof Error) {
-          Alert.alert(error.message);
-        }
-      } finally {
-        return;
+        console.log("error", error);
       }
     },
-    [session?.user]
+    [session]
   );
 
-  useEffect(() => {
-    getProfile();
-  }, [session]);
+  
 
-  const setfavouriteHandler = useCallback(
-    async (item: string) => {
-      if (favourites.includes(item)) {
-        const updated = favourites.filter((fav: string) => fav !== item);
-        setStoreFavourites(updated);
-        await updateProfile({ favourites: updated });
-      } else {
-        const updated = [...favourites, item];
-        setStoreFavourites(updated);
-        await updateProfile({ favourites: updated });
-      }
-    },
-    [favourites, updateProfile, setStoreFavourites]
-  );
 
-  const setGameUserNameHandler = useCallback(
-    async (value: string) => {
-      setGameUserName(value);
-      updateProfile({ gameUserName: value });
-    },
-    [setGameUserName, updateProfile]
-  );
+  const signOutHandler = useCallback(async() => {
+    try {
+       await axios.get(`http://localhost:5000/api/v1/user/logout`, {
+        headers: {
+          Authorization: `Bearer ${session}`,
+        },
+      });
+      
+    } catch (err) {
+      console.log(err);
+    } finally {
+      resetAuthCTAVariables();
+      setSession(false);
+    }
+  },[]);
 
-  const guessTheFlagWriteAnswerHandler = () => {
-    const newValue = !isGuessTheFlagWriteAnswer;
-    setStoreIsGuessTheFlagWriteAnswer(newValue);
-    updateProfile({ isGuessTheFlagWriteAnswer: newValue });
-  };
+  // const setFavourites = useCallback(
+  //   (item: string) => {
+  //     if (favourites.includes(item)) {
+  //       const updated = favourites.filter((fav: string) => fav !== item);
+  //       setStoreFavourites(updated);
+  //     } else {
+  //       const updated = [...favourites, item];
+  //       setStoreFavourites(updated);
+  //     }
+  //   },
+  //   [favourites, setStoreFavourites]
+  // );
+
+  // const setGameUserNameHandler = useCallback(
+  //   (value: string) => {
+  //     setGameUserName(value);
+  //   },
+  //   [setGameUserName]
+  // );
+
+  // const guessTheFlagWriteAnswerHandler = () => {
+  //   const newValue = !isGuessTheFlagWriteAnswer;
+  //   setStoreIsGuessTheFlagWriteAnswer(newValue);
+  // };
+
+  // useEffect(() => {
+  //   if (session) {
+  //     getProfile();
+  //   }
+  // }, [session]);
 
   return {
     favourites,
-    setFavourites: setfavouriteHandler,
+    // setFavourites,
     getProfile,
-    setIsGuessTheFlagWriteAnswer: guessTheFlagWriteAnswerHandler,
+    // setIsGuessTheFlagWriteAnswer: guessTheFlagWriteAnswerHandler,
     isGuessTheFlagWriteAnswer,
-    setGameUserName: setGameUserNameHandler,
+    // setGameUserName: setGameUserNameHandler,
     gameUserName,
+    signOutHandler
   };
 }

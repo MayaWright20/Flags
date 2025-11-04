@@ -1,29 +1,28 @@
-import CTA from '@/components/buttons/large-cta';
-import { supabase } from '@/lib/supabase';
-import { useStore } from '@/store/store';
-import { Image, StyleSheet, View } from 'react-native';
+import CTA from "@/components/buttons/large-cta";
+import useProfile from "@/hooks/useProfile";
+import { useStore } from "@/store/store";
+import { Image, StyleSheet, Text, View } from "react-native";
 
 export default function ProfileScreen() {
-  // Settings - search by guesss by flag/ name
+  const {signOutHandler} = useProfile();
+
+  const profileName = useStore((state: any) => state.profileName);
+
   // sign out
-  // reset favourites
-  // remove profile
+  // delete profile
+  // edit details - name, email, password
 
-  const resetAuthCTAVariables = useStore(
-    (state: any) => state.resetAuthCTAVariables
-  );
-
-  const signOutHandler = () => {
-    resetAuthCTAVariables();
-    supabase.auth.signOut();
-  };
   return (
     <View style={styles.page}>
       <Image
-        source={require('@/assets/images/laying.png')}
-        style={{ width: '100%', height: 200, marginBottom: 150 }}
+        source={require("@/assets/images/laying.png")}
+        style={{ width: "100%", height: 200}}
       />
-      <CTA title={'Sign out'} onPress={signOutHandler} style={styles.cta} />
+      <Text style={styles.title}>hej! hello! Bonjour!</Text>
+      <Text style={styles.title}>{profileName ? profileName : "Buddy"}</Text>
+      <View style={styles.container}>
+        <CTA title={"Sign out"} onPress={signOutHandler} style={styles.cta} />
+      </View>
     </View>
   );
 }
@@ -31,10 +30,20 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    alignItems: 'center',
-    backgroundColor: 'white',
+    alignItems: "center",
+    backgroundColor: "white",
   },
   cta: {
-    width: '95%',
+    width: "95%",
   },
+  title: {
+    fontSize: 40,
+    fontWeight: "bold",
+    textTransform: "capitalize"
+  },
+  container: {
+    flex: 1,
+    width: '100%',
+    marginTop: '30%'
+  }
 });

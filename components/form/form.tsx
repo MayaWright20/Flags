@@ -83,11 +83,13 @@ export default function Form({
     if (typeof fieldName !== 'string') {
       fieldName = String(fieldName);
     }
+
     dispatch({
       type: 'SET_FIELD',
       field: fieldName,
       value: text,
     });
+
     setFormData(state);
   };
 
@@ -115,14 +117,17 @@ export default function Form({
                     <Text style={styles.title}>{item.title}</Text>
                   )}
                   <TextInputComponent
+                    label={item.label}
                     isMultiline={item.isMultiline ? true : false}
-                    placeholder={item.title}
+                    placeholder={item.placeholder}
                     onChangeText={(text) => handleTextChange(text, item.title)}
                     borderColor={color}
                     isInputHidden={item.isInputHidden}
                     keyboardType={item.keyboardType || undefined}
                     showMaxLengthPill={item.showMaxLengthPill}
                     maxLength={item.maxLength}
+                    autoCapitalize={item.autoCapitalize}
+                    
                     // errorState={
 
                     //   item.regex &&

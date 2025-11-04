@@ -1,24 +1,22 @@
-import { supabase } from '@/lib/supabase';
-import { Session } from '@supabase/supabase-js';
-import { useEffect, useState } from 'react';
+import { usePersistStore } from '@/store/store';
+import { useCallback } from 'react';
 
 export default function useSession() {
-  const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const session = usePersistStore((state: any) => state.session);
+  const setSession = usePersistStore((state: any) => state.setSession);
 
-  useEffect(() => {
-    setIsLoading(true);
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-    setIsLoading(false);
-  }, []);
+  const clearSession = useCallback(() => {
+    setSession(null);
+  }, [setSession]);
+
+  const updateSession = useCallback((token: string) => {
+    setSession(token);
+  }, [setSession]);
 
   return {
     session,
-    isLoading,
+    setSession: updateSession,
+    clearSession,
+    isAuthenticated: !!session,
   };
 }

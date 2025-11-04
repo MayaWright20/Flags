@@ -59,14 +59,19 @@ export default function LoginScreen() {
             content={[
               {
                 formType: FORM_TYPES.TEXT_INPUT,
+                placeholder: 'Email | Username',
                 title: 'Email',
-                keybordType: 'email-address',
                 regex: /^[A-Za-z]{3,}$/,
+                label: true,
+                autoCapitalize: "none"
               },
               {
                 formType: FORM_TYPES.TEXT_INPUT,
                 isInputHidden: true,
+                placeholder: "Password",
                 title: 'Password',
+                label: true,
+                autoCapitalize: "none"
               },
             ]}
           />
