@@ -4,7 +4,7 @@ import useProfile from "@/hooks/useProfile";
 import { usePersistStore, useStore } from "@/store/store";
 import axios from "axios";
 import { router, Stack } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { StyleSheet, useWindowDimensions, View } from "react-native";
 
 const apiUrl = process.env.EXPO_PUBLIC_URL;
@@ -43,15 +43,6 @@ function RootNavigator() {
   const setSession = usePersistStore((state: any) => state.setSession);
 
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    // supabase.auth.getSession().then(({ data: { session } }) => {
-    //   setSession(session);
-    // });
-    // supabase.auth.onAuthStateChange((_event, session) => {
-    //   setSession(session);
-    // });
-  }, []);
 
   async function signInWithEmail() {
     setLoading(true);

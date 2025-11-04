@@ -1,6 +1,5 @@
 import CTA from '@/components/buttons/large-cta';
-import { supabase } from '@/lib/supabase';
-import { useStore } from '@/store/store';
+import { usePersistStore, useStore } from '@/store/store';
 import { Image, StyleSheet, View } from 'react-native';
 
 export default function ProfileScreen() {
@@ -12,10 +11,13 @@ export default function ProfileScreen() {
   const resetAuthCTAVariables = useStore(
     (state: any) => state.resetAuthCTAVariables
   );
+  const setSession = usePersistStore(
+    (state: any) => state.setSession
+  );
 
   const signOutHandler = () => {
     resetAuthCTAVariables();
-    supabase.auth.signOut();
+    setSession(null)
   };
   return (
     <View style={styles.page}>
