@@ -7,7 +7,7 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "build": "echo 'Build complete'",
+    "build": "netlify deploy --prod",
     "dev": "nodemon server.js",
     "start": "node server.js",
     "deploy": "netlify deploy --prod",
