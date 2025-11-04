@@ -1,8 +1,8 @@
-import useSession from '@/hooks/useSession';
+import { usePersistStore } from '@/store/store';
 import { Stack } from 'expo-router';
 
 export default function SignUpLayout() {
-  const { session } = useSession();
+    const session = usePersistStore((state: any)=> state.session);
 
   return (
     <Stack>

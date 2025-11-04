@@ -46,12 +46,14 @@ function RootNavigator() {
 
   async function goToHomeScreen() {
     if (session) {
-      await axios.get(`${basePath}user/profile`);
+      const response = await axios.get(`${basePath}user/profile`);
+
+      console.log(response)
 
       router.navigate("/(app)");
       resetAuthCTAVariables();
     }
-  }
+  };
 
   async function signInWithEmail() {
     setLoading(true);
@@ -71,7 +73,7 @@ function RootNavigator() {
       setIsAuthCTADisabled(false);
     }
     setLoading(false);
-  }
+  };
 
   async function signUpWithEmail() {
     setLoading(true);
@@ -95,12 +97,11 @@ function RootNavigator() {
       console.log("error signing up");
     }
     setLoading(false);
-  }
+  };
 
   const onPress = () => {
     if (authCTANumber === 0 && isAuthLoginRoute) {
       signInWithEmail();
-      // Don't navigate immediately - let signInWithEmail handle navigation on success
     } else if (authCTANumber === 0) {
       router.navigate("/sign-up");
       setIsAuthLoginRoute(false);
