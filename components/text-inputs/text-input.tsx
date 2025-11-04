@@ -67,6 +67,7 @@ export default function TextInputComponent({
 
   return (
     <>
+    <Text style={[styles.label, {color: borderColor}]}>{placeholder}</Text>
       <TextInput
         style={[
           styles.textInput,
@@ -85,7 +86,7 @@ export default function TextInputComponent({
         ]}
         value={inputValue ? inputValue : value}
         multiline={isMultiline}
-        placeholder={placeholder}
+        // placeholder={placeholder}
         onChangeText={clear ? clearText : handleChange}
         keyboardType={keyboardType}
         lineBreakStrategyIOS="none"
@@ -102,6 +103,11 @@ export default function TextInputComponent({
 }
 
 const styles = StyleSheet.create({
+  label: {
+    paddingLeft: PADDING.SMALL_PADDING,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   textInput: {
     borderRadius: BORDER_RADIUS.XLARGE_BORDER_RADIUS,
     justifyContent: 'center',
