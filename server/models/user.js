@@ -9,13 +9,13 @@ const schema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: [true, "Please enter an email"],
+        required: [true, "Please enter email"],
         unique: [true, "Email already taken"],
         validate: validator.isEmail
     },
     username: {
         type: String,
-        required: [true, "Please a username"],
+        required: [true, "Please enter username"],
         unique: [true, "Username already taken"],
     },
     password: {

@@ -14,6 +14,9 @@ app.get("/", (req, res, nex)=> {
     res.send("Working")
 })
 
+import { errorMiddleware } from "./middleware/error.js";
 import user from "./routes/user.js";
 
 app.use("/api/v1/user", user);
+
+app.use(errorMiddleware)
