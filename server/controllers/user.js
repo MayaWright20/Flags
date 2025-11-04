@@ -1,7 +1,8 @@
+import { asyncError } from "../middleware/error.js";
 import { User } from "../models/user.js";
 import ErrorHandler from "../utils/error.js";
 
-export const login = async(req, res, next) => {
+export const login = asyncError(async(req, res, next) => {
     const {email, password, username} = req.body;
 
     const user = await User.findOne({
@@ -24,13 +25,10 @@ export const login = async(req, res, next) => {
     res.status(200).json({
         success: true,
         message: `Hey ${user.name}`
-    })
+    });
+})
 
-    
-
-};
-
-export const signUp = async(req, res, next) => {
+export const signUp = asyncError(async(req, res, next) => {
 
     const {name, email, password, username} = req.body;
 
@@ -40,4 +38,4 @@ export const signUp = async(req, res, next) => {
         success: true,
         message: "Registered Successfully!"
     })
-};
+})
