@@ -119,7 +119,7 @@ export default function Form({
                   <TextInputComponent
                     label={item.label}
                     isMultiline={item.isMultiline ? true : false}
-                    placeholder={item.title}
+                    placeholder={item.placeholder}
                     onChangeText={(text) => handleTextChange(text, item.title)}
                     borderColor={color}
                     isInputHidden={item.isInputHidden}

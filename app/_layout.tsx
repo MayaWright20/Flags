@@ -48,7 +48,7 @@ function RootNavigator() {
     try {
       if(token){
         await getProfile(token);
-        router.navigate("/(app)");
+        router.navigate("/(app)/(games)/");
         resetAuthCTAVariables();
       }
       

@@ -32,7 +32,7 @@ export default function useProfile() {
           },
         });
 
-        setProfileName(response.data.name);
+        await setProfileName(response.data.user.name);
 
       } catch (error) {
         console.log("error", error);

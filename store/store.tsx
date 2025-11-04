@@ -54,7 +54,7 @@ interface StoreState {
 
 export const useStore = create<StoreState | any>((set, get) => ({
   profileName: 'Buddy',
-  setprofileName: (profileName: string) => set(() => ({ profileName })),
+  setProfileName: (profileName: string) => set(() => ({ profileName })),
   authCTATitle: 'Sign up',
   setAuthCTATitle: (title: string) => set(() => ({ authCTATitle: title })),
   isAuthCTADisabled: false,

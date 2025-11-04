@@ -7,6 +7,7 @@ export default function ProfileScreen() {
   const {signOutHandler} = useProfile();
 
   const profileName = useStore((state: any) => state.profileName);
+
   // sign out
   // delete profile
   // edit details - name, email, password
@@ -17,8 +18,11 @@ export default function ProfileScreen() {
         source={require("@/assets/images/laying.png")}
         style={{ width: "100%", height: 200}}
       />
-      <Text style={styles.title}>hej {profileName}</Text>
-      <CTA title={"Sign out"} onPress={signOutHandler} style={styles.cta} />
+      <Text style={styles.title}>hej! hello! Bonjour!</Text>
+      <Text style={styles.title}>{profileName ? profileName : "Buddy"}</Text>
+      <View style={styles.container}>
+        <CTA title={"Sign out"} onPress={signOutHandler} style={styles.cta} />
+      </View>
     </View>
   );
 }
@@ -33,8 +37,13 @@ const styles = StyleSheet.create({
     width: "95%",
   },
   title: {
-    fontSize: 50,
+    fontSize: 40,
     fontWeight: "bold",
     textTransform: "capitalize"
+  },
+  container: {
+    flex: 1,
+    width: '100%',
+    marginTop: '30%'
   }
 });
