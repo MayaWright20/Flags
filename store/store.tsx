@@ -53,8 +53,6 @@ interface StoreState {
 }
 
 export const useStore = create<StoreState | any>((set, get) => ({
-  profileName: 'Buddy',
-  setProfileName: (profileName: string) => set(() => ({ profileName })),
   authCTATitle: 'Sign up',
   setAuthCTATitle: (title: string) => set(() => ({ authCTATitle: title })),
   isAuthCTADisabled: false,
@@ -124,9 +122,25 @@ const sessionStorage = {
   removeItem: async (name: string): Promise<void> => {
     await AsyncStorage.removeItem(name);
   },
+  clearStore: async(): Promise<void> => {
+    await AsyncStorage.clear();
+  }
 };
 
 export const usePersistStore = create()(
+  persist(
+    (set, get) => ({
+      profileName: 'Buddy',
+      setProfileName: (profileName: string) => set(() => ({ profileName })),
+    }),
+    {
+      name: 'flags',
+      storage: createJSONStorage(() => sessionStorage),
+    },
+  ),
+);
+
+export const useSessionStore = create()(
   persist(
     (set, get) => ({
       session: null,
@@ -137,4 +151,4 @@ export const usePersistStore = create()(
       storage: createJSONStorage(() => sessionStorage),
     },
   ),
-)
+);

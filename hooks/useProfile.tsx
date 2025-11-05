@@ -1,5 +1,7 @@
 import { basePath } from "@/lib/env-variables";
-import { usePersistStore, useStore } from "@/store/store";
+import { clearFlagsStorage } from "@/lib/storage";
+import { usePersistStore, useSessionStore, useStore } from "@/store/store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useCallback } from "react";
 
@@ -14,14 +16,14 @@ export default function useProfile() {
   );
   const setGameUserName = useStore((state: any) => state.setGameUserName);
   const gameUserName = useStore((state: any) => state.gameUserName);
-  const session = usePersistStore((state: any) => state.session);
+  const session = useSessionStore((state: any) => state.session);
 
   const profileName = useStore((state: any) => state.profileName);
-  const setProfileName = useStore((state: any) => state.setProfileName);
+  const setProfileName = usePersistStore((state: any) => state.setProfileName);
   const resetAuthCTAVariables = useStore(
     (state: any) => state.resetAuthCTAVariables
   );
-  const setSession = usePersistStore((state: any) => state.setSession);
+  const setSession = useSessionStore((state: any) => state.setSession);
 
   const getProfile = useCallback(
     async (token: string) => {
@@ -49,12 +51,16 @@ export default function useProfile() {
        await axios.get(`http://localhost:5000/api/v1/user/logout`, {
         headers: {
           Authorization: `Bearer ${session}`,
-        },
+        }
       });
-      
+
+      await clearFlagsStorage()
+     
     } catch (err) {
       console.log(err);
     } finally {
+      // Clear all AsyncStorage data
+      await AsyncStorage.clear();
       resetAuthCTAVariables();
       setSession(false);
     }

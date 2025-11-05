@@ -1,8 +1,8 @@
-import { usePersistStore } from '@/store/store';
+import { useSessionStore } from '@/store/store';
 import { Stack } from 'expo-router';
 
 export default function Layout() {
-  const session = usePersistStore((state: any)=> state.session);
+  const session = useSessionStore((state: any)=> state.session);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

@@ -1,7 +1,7 @@
 import CTA from "@/components/buttons/large-cta";
 import { SplashScreenController } from "@/components/splash/splash-screen-controller";
 import useProfile from "@/hooks/useProfile";
-import { usePersistStore, useStore } from "@/store/store";
+import { useSessionStore, useStore } from "@/store/store";
 import axios from "axios";
 import { router, Stack } from "expo-router";
 import { useState } from "react";
@@ -39,8 +39,8 @@ function RootNavigator() {
     (state: any) => state.setIsAuthLoginRoute
   );
   const formData = useStore((state: any) => state.formData);
-  const session = usePersistStore((state: any) => state.session);
-  const setSession = usePersistStore((state: any) => state.setSession);
+  const session = useSessionStore((state: any) => state.session);
+  const setSession = useSessionStore((state: any) => state.setSession);
 
   const [loading, setLoading] = useState(false);
 

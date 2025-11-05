@@ -1,12 +1,12 @@
 import CTA from "@/components/buttons/large-cta";
 import useProfile from "@/hooks/useProfile";
-import { useStore } from "@/store/store";
+import { usePersistStore } from "@/store/store";
 import { Image, StyleSheet, Text, View } from "react-native";
 
 export default function ProfileScreen() {
   const {signOutHandler} = useProfile();
 
-  const profileName = useStore((state: any) => state.profileName);
+  const profileName = usePersistStore((state: any) => state.profileName);
 
   // sign out
   // delete profile
