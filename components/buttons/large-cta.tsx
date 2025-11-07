@@ -5,6 +5,7 @@ import {
   PADDING,
   SHADOW,
 } from '@/constants/styles';
+import * as Haptics from 'expo-haptics';
 import {
   GestureResponderEvent,
   StyleProp,
@@ -29,6 +30,13 @@ export default function CTA({
   color?: string;
   style?: StyleProp<ViewStyle>;
 }) {
+  const onPressHandler = (event: GestureResponderEvent) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    if (onPress) {
+      onPress(event);
+    }
+  };
+
   return (
     <TouchableOpacity
       style={[
@@ -40,7 +48,7 @@ export default function CTA({
           ...SHADOW,
         },
       ]}
-      onPress={disabled ? undefined : onPress}
+      onPress={disabled ? undefined : onPressHandler}
     >
       <Text style={[styles.text, { ...FONTS_VARIANTS.LARGE_CTA }, { color }]}>
         {title}
