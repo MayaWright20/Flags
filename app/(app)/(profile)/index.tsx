@@ -2,7 +2,7 @@ import CTA from "@/components/buttons/large-cta";
 import { COLOURS } from "@/constants/colours";
 import useProfile from "@/hooks/useProfile";
 import { usePersistStore } from "@/store/store";
-import { Alert, Image, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Platform, StyleSheet, Text, View } from "react-native";
 
 export default function ProfileScreen() {
   const { signOutHandler, deleteProfile: deleteProfileHandler } = useProfile();
@@ -43,14 +43,15 @@ export default function ProfileScreen() {
       <Text style={styles.title}>{profileName ? profileName : "Buddy"}</Text>
       <View style={styles.container}>
         <CTA title={"Sign out"} onPress={signOutHandler} style={styles.cta} />
-
-        <CTA
+        {Platform.OS === "ios" && (
+          <CTA
           color={COLOURS.mediumGrey}
           backgroundColor={COLOURS.white}
           title={"Delete Profile"}
           onPress={deleteProfile}
           style={[styles.cta, styles.deleteCta]}
         />
+        )}
       </View>
     </View>
   );
