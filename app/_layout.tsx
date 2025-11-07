@@ -89,6 +89,7 @@ function RootNavigator() {
         email: formData.Email.toLowerCase(),
         password: formData.Password,
         username: formData.Username.toLowerCase(),
+        phone: formData.Phone
       });
 
       if (response.data.token) {

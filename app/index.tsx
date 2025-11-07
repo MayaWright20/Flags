@@ -18,7 +18,7 @@ export default function Index() {
   return (
     <View style={styles.container}>
       <Image
-        source={require('@/assets/images/happy_flags.png')}
+        source={require('@/assets/images/happy_flags.webp')}
         style={styles.image}
       />
       <Text style={styles.title}>Guess the Flag</Text>

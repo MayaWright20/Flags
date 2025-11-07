@@ -88,6 +88,14 @@ export default function SignUpScreen() {
               },
               {
                 formType: FORM_TYPES.TEXT_INPUT,
+                title: 'Phone',
+                errorMessage: 'Please enter valid phone number',
+                label: true,
+                autoCapitalize: "none",
+                placeholder: "Phone number"
+              },
+              {
+                formType: FORM_TYPES.TEXT_INPUT,
                 isInputHidden: true,
                 label: true,
                 title: 'Password',

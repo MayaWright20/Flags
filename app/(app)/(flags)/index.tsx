@@ -59,7 +59,7 @@ export default function FlagsScreen() {
           <View style={styles.imageWrapper}>
             <Image
               source={{
-                uri: `https://flagcdn.com/w2560/${countries[countryName]}.png`,
+                uri: `https://flagcdn.com/w2560/${countries[countryName]}.webp`,
               }}
               style={styles.image}
             />
@@ -91,7 +91,7 @@ export default function FlagsScreen() {
         renderItem={renderItem}
         ListFooterComponent={
           <Image
-            source={require('@/assets/images/capes.png')}
+            source={require('@/assets/images/capes.webp')}
             style={{ width: '100%', height: 300, marginBottom: 150 }}
           />
         }
