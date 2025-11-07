@@ -130,7 +130,7 @@ export default function useProfile() {
       );
 
       if (response.data.success) {
-        setStoreFavourites(response.data.favourites);
+        await clearFlagsStorage();
         return { 
           success: true, 
           message: response.data.message 
