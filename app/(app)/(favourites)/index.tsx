@@ -3,11 +3,13 @@ import { countries } from '@/lib/country-codes';
 import { usePersistStore } from '@/store/store';
 import { FlashList } from '@shopify/flash-list';
 import { Link } from 'expo-router';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
 export default function FavouritesScreen() {
-  const favourites = usePersistStore((state: any) => state.favourites);
+  let favourites = usePersistStore((state: any) => state.favourites);
+
+  const reversedFavourites = useMemo(()=> [...favourites].reverse(),[favourites])
 
   const renderItem = ({ item }: { item: any }) => {
     return (
@@ -43,7 +45,7 @@ export default function FavouritesScreen() {
 
   return (
     <SafeAreaView style={styles.page}>
-      {favourites.length === 0 && (
+      {reversedFavourites.length === 0 && (
         <>
           <Text style={styles.title}>No Favourites</Text>
           <View style={styles.imageWrapper}>
@@ -54,10 +56,10 @@ export default function FavouritesScreen() {
           </View>
         </>
       )}
-      {favourites.length >= 1 && (
+      {reversedFavourites.length >= 1 && (
         <FlashList
           contentContainerStyle={styles.container}
-          data={favourites}
+          data={reversedFavourites}
           estimatedItemSize={50}
           renderItem={renderItem}
           numColumns={2}
