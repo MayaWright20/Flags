@@ -4,7 +4,7 @@ import useProfile from "@/hooks/useProfile";
 import { useSessionStore, useStore } from "@/store/store";
 import axios from "axios";
 import { router, Stack } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { StyleSheet, useWindowDimensions, View } from "react-native";
 import { basePath } from "../lib/env-variables";
 
@@ -115,12 +115,6 @@ function RootNavigator() {
       signUpWithEmail();
     }
   }
-
-  useEffect(()=> {
-    if(!session){
-      router.navigate("/")
-    }
-  },[session])
 
   return (
     <View style={{ flex: 1 }}>
