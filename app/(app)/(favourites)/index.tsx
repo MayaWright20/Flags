@@ -28,7 +28,7 @@ export default function FavouritesScreen() {
                 />
                 <Image
                   source={{
-                    uri: `https://flagcdn.com/w2560/${countries[item]}.webp`,
+                    uri: `https://flagcdn.com/w2560/${countries[item]}.png`,
                   }}
                   style={styles.itemImage}
                 />
@@ -48,7 +48,7 @@ export default function FavouritesScreen() {
           <Text style={styles.title}>No Favourites</Text>
           <View style={styles.imageWrapper}>
             <Image
-              source={require('@/assets/images/no_favourites.webp')}
+              source={require('@/assets/images/no_favourites.png')}
               style={styles.image}
             />
           </View>
@@ -63,7 +63,7 @@ export default function FavouritesScreen() {
           numColumns={2}
           ListFooterComponent={
             <Image
-              source={require('@/assets/images/happy_flags.webp')}
+              source={require('@/assets/images/happy_flags.png')}
               style={{ width: '100%', height: 300, marginBottom: 150 }}
             />
           }

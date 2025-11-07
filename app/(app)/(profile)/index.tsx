@@ -36,7 +36,7 @@ export default function ProfileScreen() {
   return (
     <View style={styles.page}>
       <Image
-        source={require("@/assets/images/laying.webp")}
+        source={require("@/assets/images/laying.png")}
         style={{ width: "100%", height: 200 }}
       />
       <Text style={styles.title}>hej! hello! Bonjour!</Text>

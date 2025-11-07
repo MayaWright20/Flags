@@ -179,7 +179,7 @@ export default function GuessFlagScreen() {
                   </View>
                   <Image
                     source={{
-                      uri: `https://flagcdn.com/w2560/${countries[correctAnswer]}.webp`,
+                      uri: `https://flagcdn.com/w2560/${countries[correctAnswer]}.png`,
                     }}
                     style={styles.image}
                   />

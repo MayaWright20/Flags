@@ -17,7 +17,7 @@ export default function GamesScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Image
-          source={require('@/assets/images/gaming.webp')}
+          source={require('@/assets/images/gaming.png')}
           style={styles.image}
         />
         {GAMES &&

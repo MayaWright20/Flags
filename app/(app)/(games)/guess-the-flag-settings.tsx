@@ -41,7 +41,7 @@ export default function GuessTheFlagSettingScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Image
-          source={require('@/assets/images/settings.webp')}
+          source={require('@/assets/images/settings.png')}
           style={styles.image}
         />
         <SwitchBtn
