@@ -76,9 +76,9 @@ export const useStore = create<StoreState | any>((set, get) => ({
   favourites: [] as string[],
   // setStoreFavourites: (favouriteItems: string[]) =>
   //   set(() => ({ favourites: favouriteItems })),
-  // isGuessTheFlagWriteAnswer: false,
-  // setStoreIsGuessTheFlagWriteAnswer: (isGuessTheFlagWriteAnswer: boolean) =>
-  //   set(() => ({ isGuessTheFlagWriteAnswer })),
+  isGuessTheFlagWriteAnswer: false,
+  setStoreIsGuessTheFlagWriteAnswer: (isGuessTheFlagWriteAnswer: boolean) =>
+    set(() => ({ isGuessTheFlagWriteAnswer })),
   // isMultiplayer: false,
   // setIsMultiplayer: (value: boolean) => set(() => ({ isMultiplayer: value })),
   // roomName: '',

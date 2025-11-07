@@ -113,10 +113,10 @@ export default function useProfile() {
   //   [setGameUserName]
   // );
 
-  // const guessTheFlagWriteAnswerHandler = () => {
-  //   const newValue = !isGuessTheFlagWriteAnswer;
-  //   setStoreIsGuessTheFlagWriteAnswer(newValue);
-  // };
+  const guessTheFlagWriteAnswerHandler = () => {
+    const newValue = !isGuessTheFlagWriteAnswer;
+    setStoreIsGuessTheFlagWriteAnswer(newValue);
+  };
 
   // useEffect(() => {
   //   if (session) {
@@ -129,7 +129,7 @@ export default function useProfile() {
     getFavourites,
     setIsFavourite,
     getProfile,
-    // setIsGuessTheFlagWriteAnswer: guessTheFlagWriteAnswerHandler,
+    setIsGuessTheFlagWriteAnswer: guessTheFlagWriteAnswerHandler,
     isGuessTheFlagWriteAnswer,
     // setGameUserName: setGameUserNameHandler,
     gameUserName,

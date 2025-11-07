@@ -1,45 +1,41 @@
-import CTA from '@/components/buttons/large-cta';
 import SwitchBtn from '@/components/buttons/switch';
-import TextInputComponent from '@/components/text-inputs/text-input';
 import useProfile from '@/hooks/useProfile';
-import { useRealtimePresenceRoom } from '@/hooks/useRealTimePresenceRoom';
 import { useStore } from '@/store/store';
-import { useEffect, useMemo } from 'react';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function GuessTheFlagSettingScreen() {
   const {
     isGuessTheFlagWriteAnswer,
     setIsGuessTheFlagWriteAnswer,
-    setGameUserName,
+    // setGameUserName,
     gameUserName,
   } = useProfile();
   const isMultiplayer = useStore((state: any) => state.isMultiplayer);
   const setIsMultiplayer = useStore((state: any) => state.setIsMultiplayer);
-  const roomName = useStore((state: any) => state.roomName);
-  const setRoomName = useStore((state: any) => state.setRoomName);
+  // const roomName = useStore((state: any) => state.roomName);
+  // const setRoomName = useStore((state: any) => state.setRoomName);
   const players = useStore((state: any) => state.players);
   const setPlayers = useStore((state: any) => state.setPlayers);
 
-  const isValidRoomName = useMemo(
-    () => roomName.trim() !== '' && roomName.length >= 4,
-    [roomName]
-  );
-  const isValidName = useMemo(
-    () => gameUserName.trim() !== '' && gameUserName.length >= 2,
-    [gameUserName]
-  );
-  const { users, setHasGameStarted } = useRealtimePresenceRoom(roomName);
+  // const isValidRoomName = useMemo(
+  //   () => roomName.trim() !== '' && roomName.length >= 4,
+  //   [roomName]
+  // );
+  // const isValidName = useMemo(
+  //   () => gameUserName.trim() !== '' && gameUserName.length >= 2,
+  //   [gameUserName]
+  // );
+  // const { users, setHasGameStarted } = useRealtimePresenceRoom(roomName);
 
-  const startGame = () => {
-    setHasGameStarted(true);
-  };
+  // const startGame = () => {
+  //   setHasGameStarted(true);
+  // };
 
-  useEffect(() => {
-    if (!users) return;
-    setPlayers(users);
-  }, [users, setPlayers]);
+  // useEffect(() => {
+  //   if (!users) return;
+  //   setPlayers(users);
+  // }, [users, setPlayers]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -55,7 +51,7 @@ export default function GuessTheFlagSettingScreen() {
           value={isGuessTheFlagWriteAnswer}
           label={'Write the answer'}
         />
-        <SwitchBtn
+        {/* <SwitchBtn
           onValueChange={(val: boolean) => {
             if (val !== true) {
             }
@@ -65,9 +61,9 @@ export default function GuessTheFlagSettingScreen() {
           trueColor={'#3bea06'}
           value={isMultiplayer}
           label={'Multiplayer'}
-        />
+        /> */}
 
-        {isMultiplayer && (
+        {/* {isMultiplayer && (
           <ScrollView contentContainerStyle={styles.scrollView}>
             <View style={styles.scrollViewContents}>
               <TextInputComponent
@@ -112,7 +108,7 @@ export default function GuessTheFlagSettingScreen() {
                 })}
             </View>
           </ScrollView>
-        )}
+        )} */}
       </View>
     </SafeAreaView>
   );
