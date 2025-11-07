@@ -4,7 +4,7 @@
     "slug": "flags",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.webp",
+    "icon": "./assets/images/globe.webp",
     "scheme": "flags",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -19,7 +19,7 @@
     "android": {
       "backgroundColor": "#ffffff",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.webp",
+        "foregroundImage": "./assets/images/globe.webp",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
@@ -27,14 +27,14 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.webp"
+      "favicon": "./assets/images/globe.webp"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.webp",
+          "image": "./assets/images/globe.webp",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
