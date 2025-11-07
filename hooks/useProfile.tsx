@@ -117,11 +117,30 @@ export default function useProfile() {
     setStoreIsGuessTheFlagWriteAnswer(newValue);
   };
 
-  // useEffect(() => {
-  //   if (session) {
-  //     getProfile();
-  //   }
-  // }, [session]);
+  const deleteProfile = useCallback(async () => {
+    try {
+      const response = await axios.delete(
+        `${basePath}user/delete`,
+        {
+          headers: {
+            'Authorization': `${session}`,
+            'Content-Type': 'application/json; charset=utf-8'
+          }
+        }
+      );
+
+      if (response.data.success) {
+        setStoreFavourites(response.data.favourites);
+        return { 
+          success: true, 
+          message: response.data.message 
+        };
+      }
+    } catch (error) {
+      return console.error('Error toggling favourite:', error);
+      
+    } 
+  }, [session, basePath]);
 
   return {
     favourites,
@@ -132,6 +151,7 @@ export default function useProfile() {
     isGuessTheFlagWriteAnswer,
     // setGameUserName: setGameUserNameHandler,
     gameUserName,
-    signOutHandler
+    signOutHandler,
+    deleteProfile
   };
 }

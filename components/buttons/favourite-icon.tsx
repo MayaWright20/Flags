@@ -28,7 +28,7 @@ export default function FavouriteIcon({
     >
       <IconSymbol
         size={size}
-        name={favourites.includes(favouritedItem) ? 'heart.fill' : 'heart'}
+        name={favourites && favourites.includes(favouritedItem) ? 'heart.fill' : 'heart'}
         color={disabled ? COLOURS.lightGrey : color}
       />
     </TouchableOpacity>
