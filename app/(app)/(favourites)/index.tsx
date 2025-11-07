@@ -9,7 +9,7 @@ import { Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 export default function FavouritesScreen() {
   let favourites = usePersistStore((state: any) => state.favourites);
 
-  const reversedFavourites = useMemo(()=> [...favourites].reverse(),[favourites])
+  const reversedFavourites = useMemo(()=> favourites ? [...favourites].reverse() : [],[favourites])
 
   const renderItem = ({ item }: { item: any }) => {
     return (
