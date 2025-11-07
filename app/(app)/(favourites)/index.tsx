@@ -43,7 +43,7 @@ export default function FavouritesScreen() {
 
   return (
     <SafeAreaView style={styles.page}>
-      {favourites.length < 1 && (
+      {favourites.length === 0 && (
         <>
           <Text style={styles.title}>No Favourites</Text>
           <View style={styles.imageWrapper}>
