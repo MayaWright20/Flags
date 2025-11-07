@@ -65,7 +65,6 @@ export default function useProfile() {
   },[]);
 
   const setIsFavourite = useCallback(async (flagName: string) => {
-    console.log(session)
     try {
       const response = await axios.patch(
         `${basePath}user/favourites`,
