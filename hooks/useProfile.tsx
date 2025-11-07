@@ -3,8 +3,7 @@ import { clearFlagsStorage } from "@/lib/storage";
 import { usePersistStore, useSessionStore, useStore } from "@/store/store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { router } from "expo-router";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 
 export default function useProfile() {
   const favourites = usePersistStore((state: any) => state.favourites);
@@ -142,12 +141,6 @@ export default function useProfile() {
       
     } 
   }, [session, basePath]);
-
-  useEffect(()=> {
-    if(!session){
-      router.navigate("/")
-    }
-  },[session])
 
   return {
     favourites,
