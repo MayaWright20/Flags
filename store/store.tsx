@@ -20,8 +20,6 @@ interface StoreState {
   resetAuthCTAVariables: () => void;
   formData: any;
   setFormData: (formData: any) => void;
-  favourites: string[];
-  setStoreFavourites: (favouriteItems: string[]) => void;
   isGuessTheFlagWriteAnswer: boolean;
   setStoreIsGuessTheFlagWriteAnswer: (
     isGuessTheFlagWriteAnswer: boolean
@@ -132,6 +130,8 @@ export const usePersistStore = create()(
     (set, get) => ({
       profileName: 'Buddy',
       setProfileName: (profileName: string) => set(() => ({ profileName })),
+      favourites: [],
+      setStoreFavourites: (favouriteItems: string[]) => set(() => ({ favourites: favouriteItems })),
     }),
     {
       name: 'flags',

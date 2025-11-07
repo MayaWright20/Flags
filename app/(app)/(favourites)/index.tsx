@@ -1,13 +1,13 @@
 import FavouriteIcon from '@/components/buttons/favourite-icon';
 import { countries } from '@/lib/country-codes';
-import { useStore } from '@/store/store';
+import { usePersistStore } from '@/store/store';
 import { FlashList } from '@shopify/flash-list';
 import { Link } from 'expo-router';
 import React from 'react';
 import { Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
 export default function FavouritesScreen() {
-  const favourites = useStore((state) => state.favourites);
+  const favourites = usePersistStore((state: any) => state.favourites);
 
   const renderItem = ({ item }: { item: any }) => {
     return (

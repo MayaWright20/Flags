@@ -6,8 +6,8 @@ import axios from "axios";
 import { useCallback } from "react";
 
 export default function useProfile() {
-  const favourites = useStore((state: any) => state.favourites);
-  const setStoreFavourites = useStore((state: any) => state.setStoreFavourites);
+  const favourites = usePersistStore((state: any) => state.favourites);
+  const setStoreFavourites = usePersistStore((state: any) => state.setStoreFavourites);
   const isGuessTheFlagWriteAnswer = useStore(
     (state: any) => state.isGuessTheFlagWriteAnswer
   );
@@ -35,6 +35,7 @@ export default function useProfile() {
         });
 
         await setProfileName(response.data.user.name);
+        await setStoreFavourites(response.data.favourites)
 
       } catch (error) {
         console.log("error", error);
@@ -43,12 +44,9 @@ export default function useProfile() {
     [session]
   );
 
-  
-
-
   const signOutHandler = useCallback(async() => {
     try {
-       await axios.get(`http://localhost:5000/api/v1/user/logout`, {
+       await axios.get(`${basePath}user/logout`, {
         headers: {
           Authorization: `Bearer ${session}`,
         }
@@ -66,18 +64,47 @@ export default function useProfile() {
     }
   },[]);
 
-  // const setFavourites = useCallback(
-  //   (item: string) => {
-  //     if (favourites.includes(item)) {
-  //       const updated = favourites.filter((fav: string) => fav !== item);
-  //       setStoreFavourites(updated);
-  //     } else {
-  //       const updated = [...favourites, item];
-  //       setStoreFavourites(updated);
-  //     }
-  //   },
-  //   [favourites, setStoreFavourites]
-  // );
+  const setIsFavourite = useCallback(async (flagName: string) => {
+    console.log(session)
+    try {
+      const response = await axios.patch(
+        `${basePath}user/favourites`,
+        { flag: flagName },
+        {
+          headers: {
+            'Authorization': `${session}`,
+            'Content-Type': 'application/json; charset=utf-8'
+          }
+        }
+      );
+
+      if (response.data.success) {
+        setStoreFavourites(response.data.favourites);
+        return { 
+          success: true, 
+          message: response.data.message 
+        };
+      }
+    } catch (error) {
+      return console.error('Error toggling favourite:', error);
+      
+    } 
+  }, [session, basePath]);
+
+
+  const getFavourites = useCallback(async(item: string)=> {
+    
+    try {
+      const response = await axios.get(`${basePath}user/favourites`);
+
+      if(response.status === 200){
+        setStoreFavourites(response)
+      }
+    }catch(err){
+      console.log(err)
+    }
+
+  },[favourites, setStoreFavourites]);
 
   // const setGameUserNameHandler = useCallback(
   //   (value: string) => {
@@ -99,7 +126,8 @@ export default function useProfile() {
 
   return {
     favourites,
-    // setFavourites,
+    getFavourites,
+    setIsFavourite,
     getProfile,
     // setIsGuessTheFlagWriteAnswer: guessTheFlagWriteAnswerHandler,
     isGuessTheFlagWriteAnswer,

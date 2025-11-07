@@ -1,6 +1,6 @@
 import { COLOURS } from '@/constants/colours';
 import useProfile from '@/hooks/useProfile';
-import { useStore } from '@/store/store';
+import { usePersistStore } from '@/store/store';
 import { StyleProp, TouchableOpacity, ViewStyle } from 'react-native';
 import { IconSymbol } from '../ui/IconSymbol';
 
@@ -17,13 +17,13 @@ export default function FavouriteIcon({
   color?: string;
   disabled?: boolean;
 }) {
-  const { setFavourites } = useProfile();
-  const favourites = useStore((state) => state.favourites);
+  const { setIsFavourite } = useProfile();
+  const favourites = usePersistStore((state: any) => state.favourites);
 
   return (
     <TouchableOpacity
       disabled={disabled}
-      onPress={() => setFavourites(favouritedItem)}
+      onPress={() => setIsFavourite(favouritedItem)}
       style={styles}
     >
       <IconSymbol
