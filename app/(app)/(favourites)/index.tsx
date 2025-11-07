@@ -43,7 +43,7 @@ export default function FavouritesScreen() {
 
   return (
     <SafeAreaView style={styles.page}>
-      {favourites && favourites.length < 1 && (
+      {favourites.length < 1 && (
         <>
           <Text style={styles.title}>No Favourites</Text>
           <View style={styles.imageWrapper}>
@@ -54,7 +54,7 @@ export default function FavouritesScreen() {
           </View>
         </>
       )}
-      {favourites && favourites.length >= 1 && (
+      {favourites.length >= 1 && (
         <FlashList
           contentContainerStyle={styles.container}
           data={favourites}
