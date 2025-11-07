@@ -35,13 +35,16 @@ export default function useProfile() {
         });
 
         await setProfileName(response.data.user.name);
-        await setStoreFavourites(response.data.favourites)
+
+        const favourites = await getFavourites();
+
+        setStoreFavourites(favourites)
 
       } catch (error) {
         console.log("error", error);
       }
     },
-    [session]
+    [setProfileName, setStoreFavourites]
   );
 
   const signOutHandler = useCallback(async() => {
@@ -52,17 +55,39 @@ export default function useProfile() {
         }
       });
 
-      await clearFlagsStorage()
+      // Clear specific storage items instead of everything
+      await clearFlagsStorage();
+      await AsyncStorage.removeItem('session');
      
     } catch (err) {
       console.log(err);
     } finally {
-      // Clear all AsyncStorage data
-      await AsyncStorage.clear();
+      // Reset local state
+      setStoreFavourites([]);
       resetAuthCTAVariables();
       setSession(false);
     }
-  },[]);
+  },[session, setStoreFavourites, resetAuthCTAVariables, setSession]);
+
+  const getFavourites = useCallback(async()=> {
+    try {
+      const response = await axios.get(`${basePath}user/favourites`, {
+          headers: {
+            'Authorization': `Bearer ${session}`,
+            'Content-Type': 'application/json; charset=utf-8'
+          }
+        });
+
+      if(response.status === 200){
+        setStoreFavourites(response.data.favourites)
+        return response.data.favourites;
+      }
+    }catch(err){
+      console.log(err)
+      return null;
+    }
+
+  },[session, setStoreFavourites]);
 
   const setIsFavourite = useCallback(async (flagName: string) => {
     try {
@@ -71,39 +96,30 @@ export default function useProfile() {
         { flag: flagName },
         {
           headers: {
-            'Authorization': `${session}`,
+            'Authorization': `Bearer ${session}`,
             'Content-Type': 'application/json; charset=utf-8'
           }
         }
       );
 
       if (response.data.success) {
-        setStoreFavourites(response.data.favourites);
+        await getFavourites();
         return { 
           success: true, 
           message: response.data.message 
         };
       }
     } catch (error) {
-      return console.error('Error toggling favourite:', error);
-      
+      console.error('Error toggling favourite:', error);
+      return {
+        success: false,
+        message: 'Failed to toggle favourite'
+      };
     } 
-  }, [session, basePath]);
+  }, [session, getFavourites]);
 
 
-  const getFavourites = useCallback(async(item: string)=> {
-    
-    try {
-      const response = await axios.get(`${basePath}user/favourites`);
-
-      if(response.status === 200){
-        setStoreFavourites(response)
-      }
-    }catch(err){
-      console.log(err)
-    }
-
-  },[favourites, setStoreFavourites]);
+  
 
   // const setGameUserNameHandler = useCallback(
   //   (value: string) => {
@@ -123,7 +139,7 @@ export default function useProfile() {
         `${basePath}user/delete`,
         {
           headers: {
-            'Authorization': `${session}`,
+            'Authorization': `Bearer ${session}`,
             'Content-Type': 'application/json; charset=utf-8'
           }
         }
@@ -137,10 +153,13 @@ export default function useProfile() {
         };
       }
     } catch (error) {
-      return console.error('Error toggling favourite:', error);
-      
+      console.error('Error deleting profile:', error);
+      return {
+        success: false,
+        message: 'Failed to delete profile'
+      };
     } 
-  }, [session, basePath]);
+  }, [session]);
 
   return {
     favourites,

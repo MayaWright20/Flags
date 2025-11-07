@@ -4,7 +4,7 @@ import useProfile from "@/hooks/useProfile";
 import { useSessionStore, useStore } from "@/store/store";
 import axios from "axios";
 import { router, Stack } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet, useWindowDimensions, View } from "react-native";
 import { basePath } from "../lib/env-variables";
 
@@ -43,6 +43,13 @@ function RootNavigator() {
   const setSession = useSessionStore((state: any) => state.setSession);
 
   const [loading, setLoading] = useState(false);
+
+  // Check for existing session on app load and load profile
+  useEffect(() => {
+    if (session) {
+      getProfile(session);
+    }
+  }, [session, getProfile]);
 
   async function goToHomeScreenWithToken(token: string) {
     try {
